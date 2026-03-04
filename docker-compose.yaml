@@ -1,20 +1,27 @@
 ﻿version: "3.8"
 
 services:
-  frank-notificatie:
+  frank:
     build: .
+    environment:
+      TZ: Europe/Amsterdam
+      dtap.stage: LOC
+    volumes:
+      - h2-data:/opt/frank/h2
+      - logs:/usr/local/tomcat/logs
     ports:
       - "8080:8080"
-    environment:
-      - dtap.stage=DEV
-    depends_on:
-      - db
+    restart: unless-stopped
 
-  db:
-    image: postgres:15
+  frank-flow:
+    image: frankframework/frank-flow:latest
     environment:
-      POSTGRES_DB: notificaties
-      POSTGRES_USER: frank
-      POSTGRES_PASSWORD: frank
+      configurations.directory: /opt/frank/configurations
+    volumes:
+      - ./src/main/:/opt/frank/:rw
     ports:
-      - "5432:5432"
+      - "8090:8090"
+
+volumes:
+  logs:
+  h2-data:
