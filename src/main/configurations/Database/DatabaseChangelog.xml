@@ -6,22 +6,16 @@
            http://www.liquibase.org/xml/ns/dbchangelog
            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
 
-    <!-- ====================================================== -->
     <!-- 0. TEST -->
-    <!-- ====================================================== -->
-
     <changeSet id="0-create-test" author="wearefrank">
         <createTable tableName="test">
             <column name="value" type="VARCHAR(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
 
-    <!-- ====================================================== -->
     <!-- 1. KANAAL -->
-    <!-- ====================================================== -->
-
     <changeSet id="1-create-kanaal" author="wearefrank">
         <createTable tableName="kanaal">
             <column name="id" type="BIGSERIAL">
@@ -34,13 +28,13 @@
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="documentatie_link" type="VARCHAR(1000)"/>
+<!--            <column name="filters" type="VARCHAR(100)[]" defaultValue="{}">-->
+<!--                <constraints nullable="false"/>-->
+<!--            </column>-->
         </createTable>
     </changeSet>
 
-    <!-- ====================================================== -->
     <!-- 2. ABONNEMENT -->
-    <!-- ====================================================== -->
-
     <changeSet id="2-create-abonnement" author="wearefrank">
         <createTable tableName="abonnement">
             <column name="id" type="BIGSERIAL">
@@ -52,20 +46,108 @@
             <column name="callback_url" type="VARCHAR(1000)">
                 <constraints nullable="false"/>
             </column>
-
-            <!-- auth -->
-            <column name="auth_type" type="VARCHAR(30)"/>
-            <column name="auth_header" type="VARCHAR(1000)"/>
-            <column name="client_id" type="VARCHAR(255)"/>
-            <column name="client_secret" type="VARCHAR(255)"/>
-            <column name="oauth2_token_url" type="VARCHAR(1000)"/>
-            <column name="oauth2_scope" type="VARCHAR(255)"/>
-
-            <column name="send_cloudevents" type="BOOLEAN" defaultValueBoolean="false"/>
-
-            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="auth" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
+    <!-- 3. FILTER_GROUP -->
+    <changeSet id="3-create-filter-group" author="wearefrank">
+        <createTable tableName="filter_group">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="abonnement_id" type="BIGINT">
+                <constraints
+                        nullable="false"
+                        foreignKeyName="fk_filter_group_abonnement"
+                        references="abonnement(id)"
+                        deleteCascade="true"/>
+            </column>
+            <column name="kanaal_id" type="BIGINT">
+                <constraints
+                        nullable="false"
+                        foreignKeyName="fk_filter_group_kanaal"
+                        references="kanaal(id)"
+                        deleteCascade="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- 4. FILTER -->
+    <changeSet id="4-create-filter" author="wearefrank">
+        <createTable tableName="filter">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="filter_group_id" type="BIGINT">
+                <constraints
+                        nullable="false"
+                        foreignKeyName="fk_filter_filter_group"
+                        references="filter_group(id)"
+                        deleteCascade="true"/>
+            </column>
+            <column name="key" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint
+                tableName="filter"
+                columnNames="filter_group_id, key"
+                constraintName="uq_filter_group_key"/>
+    </changeSet>
+
+    <!-- 5. NOTIFICATIE -->
+    <changeSet id="5-create-notificatie" author="wearefrank">
+        <createTable tableName="notificatie">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="kanaal_id" type="BIGINT">
+                <constraints
+                        nullable="false"
+                        foreignKeyName="fk_notificatie_kanaal"
+                        references="kanaal(id)"
+                        deleteCascade="true"/>
+            </column>
+            <column name="forwarded_msg" type="JSONB">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- 6. NOTIFICATIE_RESPONSE -->
+    <changeSet id="6-create-notificatie-response" author="wearefrank">
+        <createTable tableName="notificatie_response">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="notificatie_id" type="BIGINT">
+                <constraints
+                        nullable="false"
+                        foreignKeyName="fk_notificatie_response_notificatie"
+                        references="notificatie(id)"
+                        deleteCascade="true"/>
+            </column>
+            <column name="abonnement_id" type="BIGINT">
+                <constraints
+                        nullable="false"
+                        foreignKeyName="fk_notificatie_response_abonnement"
+                        references="abonnement(id)"
+                        deleteCascade="true"/>
+            </column>
+            <column name="attempt" type="SMALLINT" defaultValueNumeric="1">
+                <constraints nullable="false"/>
+            </column>
+            <column name="response_status" type="INTEGER"/>
+            <column name="exception" type="VARCHAR(1000)" defaultValue="">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 
 </databaseChangeLog>
