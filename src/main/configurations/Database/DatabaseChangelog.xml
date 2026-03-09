@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+           http://www.liquibase.org/xml/ns/dbchangelog
+           http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
+
+    <!-- ====================================================== -->
+    <!-- 0. TEST -->
+    <!-- ====================================================== -->
+
+    <changeSet id="0-create-test" author="wearefrank">
+        <createTable tableName="test">
+            <column name="value" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- ====================================================== -->
+    <!-- 1. KANAAL -->
+    <!-- ====================================================== -->
+
+    <changeSet id="1-create-kanaal" author="wearefrank">
+        <createTable tableName="kanaal">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="uuid" type="UUID">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="naam" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="documentatie_link" type="VARCHAR(1000)"/>
+        </createTable>
+    </changeSet>
+
+    <!-- ====================================================== -->
+    <!-- 2. ABONNEMENT -->
+    <!-- ====================================================== -->
+
+    <changeSet id="2-create-abonnement" author="wearefrank">
+        <createTable tableName="abonnement">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="uuid" type="UUID">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="callback_url" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- auth -->
+            <column name="auth_type" type="VARCHAR(30)"/>
+            <column name="auth_header" type="VARCHAR(1000)"/>
+            <column name="client_id" type="VARCHAR(255)"/>
+            <column name="client_secret" type="VARCHAR(255)"/>
+            <column name="oauth2_token_url" type="VARCHAR(1000)"/>
+            <column name="oauth2_scope" type="VARCHAR(255)"/>
+
+            <column name="send_cloudevents" type="BOOLEAN" defaultValueBoolean="false"/>
+
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+
+</databaseChangeLog>

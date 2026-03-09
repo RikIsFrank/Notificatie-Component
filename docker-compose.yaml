@@ -7,11 +7,11 @@ services:
       TZ: Europe/Amsterdam
       dtap.stage: LOC
     volumes:
-      - h2-data:/opt/frank/h2
       - logs:/usr/local/tomcat/logs
     ports:
       - "8080:8080"
-    restart: unless-stopped
+    depends_on:
+      - db
 
   frank-flow:
     image: frankframework/frank-flow:latest
@@ -22,6 +22,18 @@ services:
     ports:
       - "8090:8090"
 
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: notificaties
+      POSTGRES_USER: frank
+      POSTGRES_PASSWORD: frank
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+
 volumes:
   logs:
-  h2-data:
+  pgdata:
