@@ -1,0 +1,7 @@
+﻿<!DOCTYPE configuration [
+        <!ENTITY DatabaseInputTest    SYSTEM "./DatabaseInputTest.xml">
+        ]>
+
+<configuration name="Database">
+    &DatabaseInputTest;
+</configuration>

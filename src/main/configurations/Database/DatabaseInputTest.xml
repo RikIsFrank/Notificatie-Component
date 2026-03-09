@@ -1,0 +1,24 @@
+﻿<Module
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
+    >
+    <Adapter name="databaseInputTestAdapter">
+        <Receiver name="databaseInputTestReceiver">
+            <ApiListener
+                    name="databaseInputTestListener"
+                    uriPattern="/test"
+                    method="POST"
+                    allowAllParams="true"/>
+        </Receiver>
+        <Pipeline>
+
+            <SenderPipe name="databaseInputTestSender">
+                <FixedQuerySender
+                        name="databaseInputTestQuerySender"
+                        query="INSERT INTO test(value) VALUES (?)"
+                        datasourceName="jdbc/notificatiecomponent"/>
+                <Param name="value" xpathExpression="/testvalue"/>
+            </SenderPipe>
+        </Pipeline>
+    </Adapter>
+</Module>

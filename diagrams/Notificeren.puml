@@ -1,0 +1,65 @@
+﻿@startuml
+autonumber
+title Notificeren Sequence
+
+actor Publisher
+note over Publisher
+ZGW applicatie (Open Zaak)
+/ Iemand met rechten om
+notificaties te versturen
+end note
+
+box "Notificatie Component" #LightGray
+participant WAFAPI as "Notificatie API endpoint"
+participant WAFConfig as "Frank Configuratie pipeline"
+database WAFDB as "Database (notificaties en abonnementen)"
+end box
+
+box "ZGW Applicatie (Open Zaak)" #LightBlue
+participant ZGWAPI as "API endpoint"
+participant ZGWSys as "Systeem"
+database ZGWDB as "Database"
+end box
+
+participant Webhook as "Abonnee Webhook"
+
+Publisher -> WAFAPI : Verzoek notificatie versturen
+activate WAFAPI
+
+WAFAPI -> WAFConfig : Valideer verzoek authenticatie
+activate WAFConfig
+
+WAFConfig -> ZGWAPI : Doorsturen notificatie gegevens
+activate ZGWAPI
+
+ZGWAPI -> ZGWSys : Verwerk validatie
+activate ZGWSys
+
+ZGWSys -> ZGWDB : Controleer hoofdobject
+ZGWDB --> ZGWSys : Resultaat
+
+ZGWSys --> ZGWAPI : Verzoek OK
+deactivate ZGWSys
+
+ZGWAPI --> WAFConfig : Hoofdobject bestaat
+deactivate ZGWAPI
+
+WAFConfig -> WAFDB : Sla notificatie op
+WAFConfig -> WAFDB : Haal abonnementen op
+WAFDB --> WAFConfig : Abonnementen lijst
+
+loop Voor elke abonnee
+    WAFConfig -> Webhook : POST notificatie
+    activate Webhook
+    Webhook --> WAFConfig : HTTP 200 / fout
+    deactivate Webhook
+    WAFConfig -> WAFDB : Log response
+end
+
+WAFConfig --> WAFAPI : Notificatie verwerkt
+deactivate WAFConfig
+
+WAFAPI --> Publisher : Notificatie gepubliceerd
+deactivate WAFAPI
+
+@enduml
