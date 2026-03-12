@@ -35,7 +35,7 @@
                 <FixedQuerySender
                         name="listKanaalQuerySender"
                         queryType="SELECT"
-                        query="SELECT uuid, naam, documentatie_link, array_to_json(filters)::text AS filters FROM kanaal"
+                        query="SELECT uuid, naam, documentatie_link, filters FROM kanaal"
                         outputFormat="JSON"
                         datasourceName="jdbc/notificatiecomponent"/>
             </SenderPipe>

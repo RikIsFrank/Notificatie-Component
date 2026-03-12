@@ -28,7 +28,7 @@
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="documentatie_link" type="VARCHAR(1000)"/>
-            <column name="filters" type="TEXT[]" defaultValue="{}"> <!-- Type should be TEXT[] but H2 doesn't support it -->
+            <column name="filters" type="TEXT" defaultValue="[]"> <!-- Type should be TEXT[] but H2 doesn't support it -->
                 <constraints nullable="false"/>
             </column>
         </createTable>

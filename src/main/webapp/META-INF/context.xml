@@ -1,25 +1,25 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Context>
-<!-- Lokaal H2 (werkt half)   -->
-<!--    <Resource-->
-<!--            name="jdbc/notificatiecomponent"-->
-<!--            type="org.h2.jdbcx.JdbcDataSource"-->
-<!--            factory="org.apache.naming.factory.BeanFactory"-->
-<!--            URL="jdbc:h2:./data/notificaties"/>-->
-
-<!--     Docker PostgreSQL -->
+<!--    Lokaal H2 -->
     <Resource
             name="jdbc/notificatiecomponent"
-            auth="Container"
-            type="javax.sql.DataSource"
-            driverClassName="org.postgresql.Driver"
-            url="jdbc:postgresql://db:5432/notificaties"
-            username="frank"
-            password="frank"
-            maxTotal="20"
-            maxIdle="10"/>
+            type="org.h2.jdbcx.JdbcDataSource"
+            factory="org.apache.naming.factory.BeanFactory"
+            URL="jdbc:h2:./data/notificaties"/>
 
-<!-- Lokaal PostgreSQL (werkt niet) -->
+<!--    Docker PostgreSQL -->
+<!--    <Resource-->
+<!--            name="jdbc/notificatiecomponent"-->
+<!--            auth="Container"-->
+<!--            type="javax.sql.DataSource"-->
+<!--            driverClassName="org.postgresql.Driver"-->
+<!--            url="jdbc:postgresql://db:5432/notificaties"-->
+<!--            username="frank"-->
+<!--            password="frank"-->
+<!--            maxTotal="20"-->
+<!--            maxIdle="10"/>-->
+
+<!--    Lokaal PostgreSQL (werkt niet) -->
 <!--    <Resource-->
 <!--            name="jdbc/@instance.name.lc@_postgresql"-->
 <!--            auth="Container"-->
