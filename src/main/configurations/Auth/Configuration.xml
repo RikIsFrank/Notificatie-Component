@@ -1,0 +1,7 @@
+﻿<!DOCTYPE configuration [
+        <!ENTITY AuthCheck    SYSTEM "./AuthCheck.xml">
+        ]>
+
+<configuration name="Auth">
+    &AuthCheck;
+</configuration>

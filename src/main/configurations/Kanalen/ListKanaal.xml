@@ -8,7 +8,7 @@
                     name="listKanaalListener"
                     uriPattern="/kanaal"
                     method="GET"
-                    headerParams="Authorization,API-version: 1.0.1,Content-Type: application/json"
+                    headerParams="Authorization"
                     produces="JSON"/>
         </Receiver>
         <Pipeline>
@@ -26,10 +26,17 @@
                 <Exit name="InternalServerError" state="ERROR" code="500" />
             </Exits>
 
-            <!--
-            Moet waarschijnlijk wat validatie / JWT-authenticatie hiertussen stoppen
-            (Kijk hoe dit wordt gedaan in Open Notificaties)
-            -->
+            <EchoPipe name="echoTest1" getInputFromSessionKey="headers"/>
+
+            <SenderPipe name="CheckAuth">
+                <FrankSender target="Auth/AuthCheck"/>
+                <Param name="Authorization"
+                       sessionKey="headers"
+                       xpathExpression="headers/header[@name='Authorization']"/>
+                <Forward name="200" path="listKanaalSender"/>
+                <Forward name="401" path="Unauthorized"/>
+                <Forward name="403" path="Forbidden"/>
+            </SenderPipe>
 
             <SenderPipe name="listKanaalSender">
                 <FixedQuerySender

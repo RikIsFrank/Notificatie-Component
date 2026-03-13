@@ -1,0 +1,36 @@
+﻿<Module
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../FrankConfig.xsd">
+
+    <Adapter name="AuthCheck">
+
+        <Receiver name="AuthCheckReceiver">
+            <FrankListener/>
+        </Receiver>
+
+        <Pipeline>
+
+            <Exits>
+                <Exit name="success" state="SUCCESS" code="200"/>
+                <Exit name="unauthorized" state="ERROR" code="401"/>
+                <Exit name="forbidden" state="ERROR" code="403"/>
+            </Exits>
+
+            <!-- Testing inclusion in other pipelines -->
+<!--            <EchoPipe name="authEcho" getInputFromFixedValue="Testing auth">-->
+<!--                <Forward name="success" path="success"/> &lt;!&ndash; Test Happy Flow (HF) &ndash;&gt;-->
+<!--                <Forward name="success" path="forbidden"/> &lt;!&ndash; Test Error Flow (EF) &ndash;&gt;-->
+<!--            </EchoPipe>-->
+
+<!--            <EchoPipe name="echoTest" getInputFromSessionKey="Authorization"/>-->
+
+            <!-- Validate Authorization header (JWT-token) (should have "Bearer " prefix) - Check how -->
+            <EchoPipe name="Validate"/>
+
+            <!-- Decode JWT-token -->
+
+
+        </Pipeline>
+    </Adapter>
+
+</Module>
