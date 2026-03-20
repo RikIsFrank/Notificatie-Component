@@ -2,9 +2,9 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd">
 
-    <Adapter name="AuthCheck">
+    <Adapter name="authCheck">
 
-        <Receiver name="AuthCheckReceiver">
+        <Receiver name="authCheckReceiver">
             <FrankListener/>
         </Receiver>
 
@@ -16,19 +16,108 @@
                 <Exit name="forbidden" state="ERROR" code="403"/>
             </Exits>
 
-            <!-- Testing inclusion in other pipelines -->
-<!--            <EchoPipe name="authEcho" getInputFromFixedValue="Testing auth">-->
-<!--                <Forward name="success" path="success"/> &lt;!&ndash; Test Happy Flow (HF) &ndash;&gt;-->
-<!--                <Forward name="success" path="forbidden"/> &lt;!&ndash; Test Error Flow (EF) &ndash;&gt;-->
-<!--            </EchoPipe>-->
+            <SenderPipe name="decodeAndValidateJwt">
+                <JavascriptSender jsFileName="AuthCheck.js" jsFunctionName="decodeAndValidate"/>
+                <Param name="jwt" sessionKey="authorization"/>
+            </SenderPipe>
 
-<!--            <EchoPipe name="echoTest" getInputFromSessionKey="Authorization"/>-->
+            <PutInSessionPipe name="storeDecodeResult" sessionKey="decodeResult"/>
 
-            <!-- Validate Authorization header (JWT-token) (should have "Bearer " prefix) - Check how -->
-            <EchoPipe name="Validate"/>
+            <IfPipe name="checkDecodeStatus"
+                    expressionValue="200"
+                    jsonPathExpression="$.status">
+                <Forward name="then" path="extractClientId"/>
+                <Forward name="else" path="unauthorized"/>
+            </IfPipe>
 
-            <!-- Decode JWT-token -->
+            <EchoPipe name="extractClientId" getInputFromSessionKey="decodeResult"/>
 
+            <JsonPathPipe name="parseClientId" jsonPathExpression="$.clientId">
+                <Forward name="success" path="storeClientId"/>
+                <Forward name="exception" path="unauthorized"/>
+            </JsonPathPipe>
+
+            <PutInSessionPipe name="storeClientId" sessionKey="clientId"/>
+
+            <SenderPipe name="lookupSecret">
+                <FixedQuerySender
+                        name="lookupSecretQuery"
+                        queryType="SELECT"
+                        query="SELECT secret FROM jwt_secret WHERE client_id = ?"
+                        datasourceName="jdbc/notificatiecomponent"
+                        outputFormat="JSON">
+                    <Param name="1" sessionKey="clientId"/>
+                </FixedQuerySender>
+                <Forward name="success" path="checkSecretFound"/>
+                <Forward name="failure" path="unauthorized"/>
+            </SenderPipe>
+
+            <IfPipe name="checkSecretFound"
+                    expressionValue="0"
+                    jsonPathExpression="$.rowset.length()">
+                <Forward name="then"  path="unauthorized"/>
+                <Forward name="else" path="storeSecret"/>
+            </IfPipe>
+
+            <PutInSessionPipe name="storeSecret" sessionKey="jwtSecret"/>
+
+            <SenderPipe name="verifyHmac">
+                <JavascriptSender jsFileName="AuthCheck.js" jsFunctionName="verifyHmac"/>
+                <Param name="jwt" sessionKey="authorization"/>
+                <Param name="secretJson" sessionKey="jwtSecret"/>
+            </SenderPipe>
+
+            <SwitchPipe name="hmacResult">
+                <Forward name="200" path="generateJwt"/>
+                <Forward name="401" path="unauthorized"/>
+            </SwitchPipe>
+
+            <!-- query AC -->
+            <JwtPipe name="generateJwt"
+                     storeResultInSessionKey="myToken"
+                     sharedSecret="${nc.zgw.autorisaties-api.jwt-secret}">
+                <Param name="sharedSecret" pattern="{password}" authAlias="${nc.zgw.autorisaties-api.auth-alias}" hidden="true"/>
+                <Param name="iss" pattern="{username}" authAlias="${nc.zgw.autorisaties-api.auth-alias}" hidden="true"/>
+                <Param name="client_id" pattern="{username}" authAlias="${nc.zgw.autorisaties-api.auth-alias}" hidden="true"/>
+                <Param name="user_id" pattern="{username}" authAlias="${nc.zgw.autorisaties-api.auth-alias}" hidden="true"/>
+                <Param name="user_representation" pattern="{username}" authAlias="${nc.zgw.autorisaties-api.auth-alias}" hidden="true"/>
+            </JwtPipe>
+
+            <SenderPipe name="queryAuthorizationComponent">
+                <HttpSender name="authComponentQuerySender"
+                            methodType="GET"
+                            contentType="application/json"
+                            headersParams="Authorization,Accept-Crs,Content-Crs,Accept"
+                            url="${nc.zgw.autorisaties-api.root-url}/applicaties/consumer">
+                    <Param name="Authorization" pattern="Bearer {myToken}">
+                        <Param name="myToken" sessionKey="myToken"/>
+                    </Param>
+                    <Param name="Accept-Crs" value="EPSG:4326" />
+                    <Param name="Content-Crs" value="EPSG:4326" />
+                    <Param name="Accept" value="application/json" />
+                    <Param name="clientId" sessionKey="clientId"/>
+                </HttpSender>
+            </SenderPipe>
+
+            <PutInSessionPipe name="storeAcResponse" sessionKey="acResponse"/>
+
+            <IfPipe name="checkHeeftAlleAutorisaties"
+                    expressionValue="true"
+                    jsonPathExpression="$.heeftAlleAutorisaties">
+                <Forward name="then" path="clearResponse"/>
+                <Forward name="else" path="extractNrcScopes"/>
+            </IfPipe>
+
+            <JsonPathPipe name="extractNrcScopes"
+                          getInputFromSessionKey="acResponse"
+                          jsonPathExpression="$.autorisaties[*].scopes[?(@ == 'notificaties.consumeren')][0]">
+                <Forward name="success" path="clearResponse"/>
+                <Forward name="exception" path="forbidden"/>
+            </JsonPathPipe>
+
+            <EchoPipe name="clearResponse" getInputFromFixedValue="200">
+                <Forward name="success" path="success"/>
+            </EchoPipe>
 
         </Pipeline>
     </Adapter>
