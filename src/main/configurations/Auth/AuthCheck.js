@@ -11,13 +11,9 @@ function decodeAndValidate(jwt)
     let parts = jwt.split(".");
     if (parts.length !== 3) return "401";
 
-    let header = parts[0]
+    // let header = parts[0]
     let payload = parts[1]
-    let sig = parts[2];
-
-    // console.log("header", header);
-    // console.log("payload", jwt);
-    // console.log("sig", sig);
+    // let sig = parts[2];
 
     let decoded;
     try {
@@ -27,8 +23,6 @@ function decodeAndValidate(jwt)
     } catch (e) {
         return "401";
     }
-
-    // console.log("decoded", decoded);
 
     let claims = {};
     claims.iss = undefined;
@@ -52,18 +46,21 @@ function decodeAndValidate(jwt)
     return JSON.stringify({ status: "200", clientId: claims.client_id });
 }
 
-function verifyHmac(jwt, secretJson) {
-
-    console.log("jwt", jwt);
-    console.log("secretJson", secretJson);
-
+function verifyHmac(jwt, secret) {
     if (!jwt || jwt === "null") return "401";
-    if (!secretJson) return "401";
+    if (!secret) return "401";
 
-    // more logica - doing this later
+    jwt = jwt.replace("Bearer ", "");
+    let parts = jwt.split(".");
+    if (parts.length !== 3) return "401";
 
-    return "200";
-    // return JSON.stringify({ status: "401", clientId: null });
+    let header = parts[0]
+    let payload = parts[1]
+    let sig = parts[2];
+
+    let computed = _generateHmac(header + "." + payload, secret);
+
+    return computed === sig ? "200" : "401";
 }
 
 function checkScopes(acResponseJson, requiredScopesJson) {
@@ -83,4 +80,19 @@ function checkScopes(acResponseJson, requiredScopesJson) {
     })
 
     return hasScope ? "200" : "401";
+}
+
+function _toBytes(str) {
+    var buf = java.nio.charset.StandardCharsets.UTF_8.encode(str);
+    return java.util.Arrays.copyOf(buf.array(), buf.limit());
+}
+
+function _generateHmac(input, secret) {
+    var mac = javax.crypto.Mac.getInstance("HmacSHA256");
+    var secretKeySpec = new javax.crypto.spec.SecretKeySpec(_toBytes(secret), "HmacSHA256");
+    mac.init(secretKeySpec);
+    var rawHmac = mac.doFinal(_toBytes(input));
+    return java.util.Base64.getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(rawHmac);
 }

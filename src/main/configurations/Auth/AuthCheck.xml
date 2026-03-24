@@ -59,7 +59,9 @@
                 <Forward name="else" path="storeSecret"/>
             </IfPipe>
 
-            <PutInSessionPipe name="storeSecret" sessionKey="jwtSecret"/>
+            <PutInSessionPipe name="storeSecret">
+                <Param name="jwtSecret" jsonPathExpression="$.rowset[0].SECRET"/>
+            </PutInSessionPipe>
 
             <SenderPipe name="verifyHmac">
                 <JavascriptSender jsFileName="AuthCheck.js" jsFunctionName="verifyHmac"/>
