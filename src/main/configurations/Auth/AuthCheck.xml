@@ -105,18 +105,27 @@
                     expressionValue="true"
                     jsonPathExpression="$.heeftAlleAutorisaties">
                 <Forward name="then" path="clearResponse"/>
-                <Forward name="else" path="extractNrcScopes"/>
+                <Forward name="else" path="checkScopeResult"/>
             </IfPipe>
 
-            <JsonPathPipe name="extractNrcScopes"
-                          getInputFromSessionKey="acResponse"
-                          jsonPathExpression="$.autorisaties[*].scopes[?(@ == 'notificaties.consumeren')][0]">
-                <Forward name="success" path="clearResponse"/>
-                <Forward name="exception" path="forbidden"/>
-            </JsonPathPipe>
+            <SenderPipe name="checkScopeResult">
+                <JavascriptSender jsFileName="AuthCheck.js" jsFunctionName="checkScopes"/>
+                <Param name="acResponseJson" sessionKey="acResponse"/>
+                <Param name="requiredScopesJson" sessionKey="requiredScopes"/>
+            </SenderPipe>
 
+            <SwitchPipe name="scopeResult">
+                <Forward name="200" path="clearResponse"/>
+                <Forward name="401" path="failClearResponse"/>
+            </SwitchPipe>
+
+            <!-- Need a better / cleaner solution for this -->
             <EchoPipe name="clearResponse" getInputFromFixedValue="200">
                 <Forward name="success" path="success"/>
+            </EchoPipe>
+
+            <EchoPipe name="failClearResponse" getInputFromFixedValue="401">
+                <Forward name="success" path="unauthorized"/>
             </EchoPipe>
 
         </Pipeline>

@@ -65,3 +65,22 @@ function verifyHmac(jwt, secretJson) {
     return "200";
     // return JSON.stringify({ status: "401", clientId: null });
 }
+
+function checkScopes(acResponseJson, requiredScopesJson) {
+    let acResponse = JSON.parse(acResponseJson);
+    let requiredScopes = JSON.parse(requiredScopesJson);
+
+    let grantedScopes = acResponse.autorisaties.flatMap(function(a) {
+        return a.scopes;
+    });
+
+    let hasScope = false;
+
+    grantedScopes.forEach((grantedScope) => {
+        if (requiredScopes.includes(grantedScope)) {
+            hasScope = true;
+        }
+    })
+
+    return hasScope ? "200" : "401";
+}

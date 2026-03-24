@@ -9,6 +9,7 @@
                     uriPattern="/kanaal"
                     method="GET"
                     headerParams="Authorization"
+                    allowAllParams="false"
                     produces="JSON"/>
         </Receiver>
         <Pipeline>
@@ -31,6 +32,7 @@
                 <Param name="authorization"
                        sessionKey="headers"
                        xpathExpression="headers/header[@name='Authorization']"/>
+                <Param name="requiredScopes" value='["notificaties.publiceren", "notifcaties.consumeren"]'/>
             </SenderPipe>
 
             <SwitchPipe name="authResult">
