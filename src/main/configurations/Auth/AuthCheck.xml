@@ -63,6 +63,7 @@
                 <Param name="jwtSecret" jsonPathExpression="$.rowset[0].SECRET"/>
             </PutInSessionPipe>
 
+            <!-- Maybe could've been done with a HashPipe-->
             <SenderPipe name="verifyHmac">
                 <JavascriptSender jsFileName="AuthCheck.js" jsFunctionName="verifyHmac"/>
                 <Param name="jwt" sessionKey="authorization"/>

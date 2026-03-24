@@ -9,6 +9,7 @@
                     uriPattern="/kanaal"
                     method="POST"
                     headerParams="Authorization"
+                    consumes="JSON"
                     allowAllParams="false"
                     produces="JSON"/>
         </Receiver>
@@ -45,11 +46,25 @@
                     name="createKanaalValidator"
                     schema="json/create-kanaal-schema.json"
                     getInputFromSessionKey="originalMessage">
-                <Forward name="success" path="uuidGenerator"/>
+                <Forward name="success" path="checkKanaalNameExists"/>
                 <Forward name="failure" path="BadRequest"/>
             </JsonValidatorPipe>
 
-            <!-- TODO: check if kanaal name already exists to prevent duplicates -->
+            <SenderPipe name="checkKanaalNameExists"
+                preserveInput="true">
+                <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"
+                                  queryType="SELECT"
+                                  datasourceName="jdbc/notificatiecomponent"
+                                  outputFormat="JSON"/>
+                <Param name="naam" sessionKey="originalMessage" jsonPathExpression="$.naam"/>
+            </SenderPipe>
+            
+            <IfPipe name="kanaalNameExistsCheck"
+                    expressionValue="0"
+                    jsonPathExpression="$.rowset[0].count">
+                <Forward name="then" path="uuidGenerator"/>
+                <Forward name="else" path="Conflict"/>
+            </IfPipe>
 
             <UUIDGeneratorPipe name="uuidGenerator" type="ALPHANUMERIC" storeResultInSessionKey="uuid"/>
 
