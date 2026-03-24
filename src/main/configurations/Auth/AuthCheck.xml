@@ -27,14 +27,14 @@
                     expressionValue="200"
                     jsonPathExpression="$.status">
                 <Forward name="then" path="extractClientId"/>
-                <Forward name="else" path="unauthorized"/>
+                <Forward name="else" path="failClearResponse"/>
             </IfPipe>
 
             <EchoPipe name="extractClientId" getInputFromSessionKey="decodeResult"/>
 
             <JsonPathPipe name="parseClientId" jsonPathExpression="$.clientId">
                 <Forward name="success" path="storeClientId"/>
-                <Forward name="exception" path="unauthorized"/>
+                <Forward name="exception" path="failClearResponse"/>
             </JsonPathPipe>
 
             <PutInSessionPipe name="storeClientId" sessionKey="clientId"/>
@@ -49,13 +49,13 @@
                     <Param name="1" sessionKey="clientId"/>
                 </FixedQuerySender>
                 <Forward name="success" path="checkSecretFound"/>
-                <Forward name="failure" path="unauthorized"/>
+                <Forward name="failure" path="failClearResponse"/>
             </SenderPipe>
 
             <IfPipe name="checkSecretFound"
                     expressionValue="0"
                     jsonPathExpression="$.rowset.length()">
-                <Forward name="then"  path="unauthorized"/>
+                <Forward name="then"  path="failClearResponse"/>
                 <Forward name="else" path="storeSecret"/>
             </IfPipe>
 
@@ -71,7 +71,7 @@
 
             <SwitchPipe name="hmacResult">
                 <Forward name="200" path="generateJwt"/>
-                <Forward name="401" path="unauthorized"/>
+                <Forward name="401" path="failClearResponse"/>
             </SwitchPipe>
 
             <!-- query AC -->

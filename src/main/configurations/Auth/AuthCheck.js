@@ -1,15 +1,12 @@
 ﻿"use strict";
 
-function decodeAndValidate(jwt)
-{
-    // console.log("jwt", jwt);
-
-    if (!jwt || jwt === "null") return "401";
-    if (!jwt.startsWith("Bearer ")) return "401";
+function decodeAndValidate(jwt) {
+    if (!jwt || jwt === "null") return JSON.stringify({ status: "401" });
+    if (!jwt.startsWith("Bearer ")) return JSON.stringify({ status: "401" });
 
     jwt = jwt.replace("Bearer ", "");
     let parts = jwt.split(".");
-    if (parts.length !== 3) return "401";
+    if (parts.length !== 3) return JSON.stringify({ status: "401" });
 
     // let header = parts[0]
     let payload = parts[1]
@@ -21,7 +18,7 @@ function decodeAndValidate(jwt)
             java.util.Base64.getDecoder().decode(payload)
         ));
     } catch (e) {
-        return "401";
+        return JSON.stringify({ status: "401" });
     }
 
     let claims = {};
@@ -33,15 +30,17 @@ function decodeAndValidate(jwt)
 
     try {
         claims = JSON.parse(decoded);
-        if (!claims.iss || !claims.iat || !claims.client_id ) return "401";
-        if (claims.iss !== claims.client_id) return "401";
+        if (!claims.iss || !claims.iat || !claims.client_id ) return JSON.stringify({ status: "401" });
+        if (claims.iss !== claims.client_id) return JSON.stringify({ status: "401" });
     } catch (e) {
-        return "401";
+        return JSON.stringify({ status: "401" });
     }
 
-    // console.log("claims cid", claims.client_id);
+    let timestamp = Math.floor(Date.now() / 1000);
+    let timeBetween = timestamp - claims.iat;
 
-    // add logic to check time limit on iat (issued at timestamp)
+    // if (timeBetween < 0) return JSON.stringify({ status: "401" });
+    if (timeBetween > 600) return JSON.stringify({ status: "401" });
 
     return JSON.stringify({ status: "200", clientId: claims.client_id });
 }
