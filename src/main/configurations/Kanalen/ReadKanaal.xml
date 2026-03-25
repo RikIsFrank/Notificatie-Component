@@ -15,9 +15,9 @@
         <Pipeline>
             <Exits>
                 <Exit name="OK" state="SUCCESS" code="200"/>
-                <Exit name="BadRequest" state="ERROR" code="400"/>
                 <Exit name="Unauthorized" state="ERROR" code="401"/>
                 <Exit name="Forbidden" state="ERROR" code="403"/>
+                <Exit name="NotFound" state="ERROR" code="404"/>
                 <Exit name="NotAcceptable" state="ERROR" code="406"/>
                 <Exit name="Conflict" state="ERROR" code="409"/>
                 <Exit name="Gone" state="ERROR" code="410"/>
@@ -37,9 +37,29 @@
 
             <SwitchPipe name="authResult">
                 <Forward name="200" path="readKanaalSender"/>
-                <Forward name="401" path="Unauthorized"/>
-                <Forward name="403" path="Forbidden"/>
+                <Forward name="401" path="unauthorizedError"/>
+                <Forward name="403" path="forbiddenError"/>
             </SwitchPipe>
+
+            <SenderPipe name="unauthorizedError">
+                <FrankSender target="Errors/errorResponse"/>
+                <Param name="status" value="401"/>
+                <Param name="code" value="authentication_failed"/>
+                <Param name="title" value="Authentication credentials were not provided."/>
+                <Param name="detail" value="Authentication credentials were not provided."/>
+                <Param name="instance" value="kanaal"/>
+                <Forward name="success" path="Unauthorized"/>
+            </SenderPipe>
+
+            <SenderPipe name="forbiddenError">
+                <FrankSender target="Errors/errorResponse"/>
+                <Param name="status" value="403"/>
+                <Param name="code" value="permission_denied"/>
+                <Param name="title" value="You do not have permission to perform this action."/>
+                <Param name="detail" value="You do not have permission to perform this action."/>
+                <Param name="instance" value="kanaal"/>
+                <Forward name="success" path="Forbidden"/>
+            </SenderPipe>
 
             <SenderPipe name="readKanaalSender">
                 <FixedQuerySender
@@ -48,7 +68,24 @@
                         query="SELECT uuid, naam, documentatie_link, filters FROM kanaal WHERE uuid = ?"
                         outputFormat="JSON"
                         datasourceName="jdbc/notificatiecomponent"/>
-                    <Param name="uuid" sessionKey="uuid"/>
+                <Param name="uuid" sessionKey="uuid"/>
+            </SenderPipe>
+
+            <IfPipe name="kanaalExistsCheck"
+                    expressionValue="0"
+                    jsonPathExpression="$.rowset.length()">
+                <Forward name="then" path="notFoundError"/>
+                <Forward name="else" path="readKanaalMap"/>
+            </IfPipe>
+
+            <SenderPipe name="notFoundError">
+                <FrankSender target="Errors/errorResponse"/>
+                <Param name="status" value="404"/>
+                <Param name="code" value="not_found"/>
+                <Param name="title" value="Not found."/>
+                <Param name="detail" sessionKey="uuid" pattern="No kanaal with uuid {uuid} found."/>
+                <Param name="instance" sessionKey="uuid" pattern="/api/v1/kanaal/{uuid}"/>
+                <Forward name="success" path="NotFound"/>
             </SenderPipe>
 
             <DataSonnetPipe

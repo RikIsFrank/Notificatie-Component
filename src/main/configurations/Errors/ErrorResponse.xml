@@ -1,0 +1,29 @@
+﻿<Module
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
+>
+    <Adapter name="errorResponse">
+        <Receiver name="errorResponseReceiver">
+            <FrankListener/>
+        </Receiver>
+        <Pipeline>
+            <Exits>
+                <Exit name="success" state="SUCCESS"/>
+            </Exits>
+
+            <ReplacerPipe name="buildInput"
+                          getInputFromFixedValue='{"status":"?{status}","code":"?{code}","title":"?{title}","detail":"?{detail}","instance":"?{instance}"}'>
+                <Param name="status" sessionKey="status"/>
+                <Param name="code" sessionKey="code"/>
+                <Param name="title" sessionKey="title"/>
+                <Param name="detail" sessionKey="detail"/>
+                <Param name="instance" sessionKey="instance"/>
+                <Forward name="success" path="buildErrorResponse"/>
+            </ReplacerPipe>
+
+            <DataSonnetPipe name="buildErrorResponse" styleSheetName="ds/error-response.ds">
+                <Forward name="success" path="success"/>
+            </DataSonnetPipe>
+        </Pipeline>
+    </Adapter>
+</Module>
