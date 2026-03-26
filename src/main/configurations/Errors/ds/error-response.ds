@@ -1,5 +1,6 @@
 local statusStr = payload.status;
 local statusInt = std.parseInt(statusStr);
+local invParams = payload.invalidParams;
 
 local typeUrls = {
     "400": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/400 400 Bad Request",
@@ -21,5 +22,10 @@ local typeUrls = {
     title: payload.title,
     status: statusInt,
     detail: payload.detail,
-    instance: payload.instance
+    instance: payload.instance,
+    [if std.length(invParams) > 0 then "invalidParams"]: {
+        name: "Bad Request - Invalid Parameters",
+        code: "400",
+        reason: invParams,
+    },
 }

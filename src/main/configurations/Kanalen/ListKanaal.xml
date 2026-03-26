@@ -37,9 +37,29 @@
 
             <SwitchPipe name="authResult">
                 <Forward name="200" path="listKanaalSender"/>
-                <Forward name="401" path="Unauthorized"/>
-                <Forward name="403" path="Forbidden"/>
+                <Forward name="401" path="unauthorizedError"/>
+                <Forward name="403" path="forbiddenError"/>
             </SwitchPipe>
+
+            <SenderPipe name="unauthorizedError">
+                <FrankSender target="Errors/errorResponse"/>
+                <Param name="status"   value="401"/>
+                <Param name="code"     value="authentication_failed"/>
+                <Param name="title"    value="Authentication credentials were not provided."/>
+                <Param name="detail"   value="Authentication credentials were not provided."/>
+                <Param name="instance" value="kanaal"/>
+                <Forward name="success" path="Unauthorized"/>
+            </SenderPipe>
+
+            <SenderPipe name="forbiddenError">
+                <FrankSender target="Errors/errorResponse"/>
+                <Param name="status"   value="403"/>
+                <Param name="code"     value="permission_denied"/>
+                <Param name="title"    value="You do not have permission to perform this action."/>
+                <Param name="detail"   value="You do not have permission to perform this action."/>
+                <Param name="instance" value="kanaal"/>
+                <Forward name="success" path="Forbidden"/>
+            </SenderPipe>
 
             <SenderPipe name="listKanaalSender">
                 <FixedQuerySender
