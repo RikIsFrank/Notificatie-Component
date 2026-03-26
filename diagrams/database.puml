@@ -14,16 +14,16 @@ skinparam class {
 entity "kanaal" as kanaal {
     * id : BIGSERIAL <<PK>>
     --
-    * uuid : UUID <<unique>>
+    * uuid : VARCHAR(50) <<unique>>
     * naam : VARCHAR(50) <<unique>>
     documentatie_link : VARCHAR(1000)
-    * filters : VARCHAR(100)[]
+    * filters : TEXT
 }
 
 entity "abonnement" as abonnement {
     * id : BIGSERIAL <<PK>>
     --
-    * uuid : UUID <<unique>>
+    * uuid : VARCHAR(50) <<unique>>
     * callback_url : VARCHAR(1000)
     * auth : VARCHAR(1000)
 }
@@ -47,7 +47,7 @@ entity "notificatie" as notificatie {
     * id : BIGSERIAL <<PK>>
     --
     * kanaal_id : BIGINT <<FK>>
-    * forwarded_msg : JSONB
+    * forwarded_msg : JSON
 }
 
 entity "notificatie_response" as notificatie_response {

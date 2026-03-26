@@ -1,0 +1,62 @@
+/*
+    decode-jwt-payload.ds
+    ─────────────────────────────────────────────────────────────────────
+    Input:  param "jwtRaw" — the full JWT string "header.payload.sig"
+    Output: parsed JSON object of the payload, e.g.:
+            {
+              "iss": "open-zaak",
+              "iat": 1774015721,
+              "client_id": "open-zaak",
+              "user_id": "open-zaak",
+              "user_representation": "open-zaak"
+            }
+
+    ZGW JWT format (VNG spec / openapi.yaml of Open Zaak AC):
+      - Algorithm: HS256
+      - Required claims: iss, iat, client_id, user_id, user_representation
+      - "iss" and "client_id" must be identical (the client's identifier)
+
+    base64url → base64 conversion:
+      - Replace '-' with '+'
+      - Replace '_' with '/'
+      - Pad to multiple of 4 with '='
+*/
+
+local jwt = payload.jwtRaw;
+local parts = std.split(jwt, ".");
+
+// A valid JWT must have exactly 3 parts
+local valid = std.length(parts) == 3;
+
+if !valid then
+    error "JWT does not have 3 parts (header.payload.signature)"
+else
+
+local rawPayload = parts[1];
+
+// base64url → standard base64
+local b64 = std.strReplace(
+                std.strReplace(rawPayload, "-", "+"),
+                "_", "/");
+
+// Add padding so length is a multiple of 4
+local padLen = std.length(b64) % 4;
+local padded = if padLen == 0 then b64
+               else if padLen == 2 then b64 + "=="
+               else if padLen == 3 then b64 + "="
+               else b64;  // padLen == 1 means malformed token
+
+// Decode and parse
+local decoded = std.base64Decode(padded);
+local claims = std.parseJson(decoded);
+
+// Validate required ZGW claims are present
+local hasIss = std.objectHas(claims, "iss");
+local hasClientId = std.objectHas(claims, "client_id");
+local hasIat = std.objectHas(claims, "iat");
+
+if !hasIss || !hasClientId || !hasIat then
+    error "JWT payload missing required ZGW claims (iss, client_id, iat)"
+else
+
+claims

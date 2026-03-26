@@ -21,16 +21,16 @@
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="uuid" type="UUID">
+            <column name="uuid" type="VARCHAR(50)"> <!-- Type should be UUID but H2 handles it differently -->
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="naam" type="VARCHAR(50)">
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="documentatie_link" type="VARCHAR(1000)"/>
-<!--            <column name="filters" type="VARCHAR(100)[]" defaultValue="{}">-->
-<!--                <constraints nullable="false"/>-->
-<!--            </column>-->
+            <column name="filters" type="TEXT" defaultValue="[]"> <!-- Type should be TEXT[] but H2 doesn't support it -->
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -40,7 +40,7 @@
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="uuid" type="UUID">
+            <column name="uuid" type="VARCHAR(50)"> <!-- Type should be UUID but H2 handles it differently -->
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="callback_url" type="VARCHAR(1000)">
@@ -114,7 +114,7 @@
                         references="kanaal(id)"
                         deleteCascade="true"/>
             </column>
-            <column name="forwarded_msg" type="JSONB">
+            <column name="forwarded_msg" type="JSON">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -150,4 +150,19 @@
         </createTable>
     </changeSet>
 
+    <!-- 7. JWT -->
+    <changeSet id="7-create-jwt-secret" author="wearefrank">
+        <createTable tableName="jwt_secret">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="client_id" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="secret" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="label" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

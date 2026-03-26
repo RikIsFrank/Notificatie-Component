@@ -1,0 +1,11 @@
+﻿local base = "http://localhost/api/v1/kanaal/";
+
+[
+    {
+        url: base + row.UUID,
+        naam: row.NAAM,
+        documentatieLink: row.DOCUMENTATIE_LINK,
+        filters: std.parseJson(row.FILTERS)
+    }
+    for row in payload.rowset
+]

@@ -1,0 +1,154 @@
+<Module
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
+>
+    <Adapter name="createKanaalAdapter">
+        <Receiver name="createKanaalReceiver">
+            <ApiListener
+                    name="createKanaalListener"
+                    uriPattern="/kanaal"
+                    method="POST"
+                    headerParams="Authorization"
+                    consumes="JSON"
+                    allowAllParams="false"
+                    produces="JSON"/>
+        </Receiver>
+        <Pipeline>
+            <Exits>
+                <Exit name="OK" state="SUCCESS" code="201"/>
+                <Exit name="BadRequest" state="ERROR" code="400"/>
+                <Exit name="Unauthorized" state="ERROR" code="401"/>
+                <Exit name="Forbidden" state="ERROR" code="403"/>
+                <Exit name="NotAcceptable" state="ERROR" code="406"/>
+                <Exit name="Conflict" state="ERROR" code="409"/>
+                <Exit name="Gone" state="ERROR" code="410"/>
+                <Exit name="PreconditionFailed" state="ERROR" code="412"/>
+                <Exit name="UnsupportedMediaType" state="ERROR" code="415"/>
+                <Exit name="TooManyRequests" state="ERROR" code="429"/>
+                <Exit name="InternalServerError" state="ERROR" code="500"/>
+            </Exits>
+
+            <SenderPipe name="checkAuth">
+                <FrankSender target="Auth/authCheck"/>
+                <Param name="authorization"
+                       sessionKey="headers"
+                       xpathExpression="headers/header[@name='Authorization']"/>
+                <Param name="requiredScopes" value='["notificaties.publiceren"]'/>
+            </SenderPipe>
+
+            <SwitchPipe name="authResult">
+                <Forward name="200" path="createKanaalValidator"/>
+                <Forward name="401" path="unauthorizedError"/>
+                <Forward name="403" path="forbiddenError"/>
+            </SwitchPipe>
+
+            <SenderPipe name="unauthorizedError">
+                <FrankSender target="Errors/errorResponse"/>
+                <Param name="status"   value="401"/>
+                <Param name="code"     value="authentication_failed"/>
+                <Param name="title"    value="Authentication credentials were not provided."/>
+                <Param name="detail"   value="Authentication credentials were not provided."/>
+                <Param name="instance" value="kanaal"/>
+                <Forward name="success" path="Unauthorized"/>
+            </SenderPipe>
+
+            <SenderPipe name="forbiddenError">
+                <FrankSender target="Errors/errorResponse"/>
+                <Param name="status"   value="403"/>
+                <Param name="code"     value="permission_denied"/>
+                <Param name="title"    value="You do not have permission to perform this action."/>
+                <Param name="detail"   value="You do not have permission to perform this action."/>
+                <Param name="instance" value="kanaal"/>
+                <Forward name="success" path="Forbidden"/>
+            </SenderPipe>
+
+            <JsonValidatorPipe
+                    name="createKanaalValidator"
+                    schema="json/create-kanaal-schema.json"
+                    getInputFromSessionKey="originalMessage">
+                <Forward name="success" path="checkKanaalNameExists"/>
+                <Forward name="failure" path="buildValidationInvalidParams"/>
+            </JsonValidatorPipe>
+
+            <!-- This is a workaround that gives the entire validator error string as invalidParam instead of making an array with invalid param -->
+            <ReplacerPipe name="buildValidationInvalidParams"
+                          getInputFromSessionKey="failureReason"
+                          getInputFromFixedValue='"?{validationException}"'>
+                <Param name="validationException" sessionKey="failureReason"/>
+                <Forward name="success" path="storeInvalidParams"/>
+            </ReplacerPipe>
+
+            <PutInSessionPipe name="storeInvalidParams" sessionKey="invalidParams">
+                <Forward name="success" path="badRequestError"/>
+            </PutInSessionPipe>
+
+            <SenderPipe name="badRequestError">
+                <FrankSender target="Errors/errorResponse"/>
+                <Param name="status" value="400"/>
+                <Param name="code" value="invalid"/>
+                <Param name="title" value="Invalid input."/>
+                <Param name="detail" value="Invalid input."/>
+                <Param name="instance" value="kanaal"/>
+                <Param name="invalidParams" sessionKey="invalidParams"/>
+                <Forward name="success" path="BadRequest"/>
+            </SenderPipe>
+
+            <SenderPipe name="checkKanaalNameExists" preserveInput="true">
+                <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"
+                                  queryType="SELECT"
+                                  datasourceName="jdbc/notificatiecomponent"
+                                  outputFormat="JSON"/>
+                <Param name="naam" sessionKey="originalMessage" jsonPathExpression="$.naam"/>
+            </SenderPipe>
+            
+            <IfPipe name="kanaalNameExistsCheck"
+                    expressionValue="0"
+                    jsonPathExpression="$.rowset[0].count">
+                <Forward name="then" path="uuidGenerator"/>
+                <Forward name="else" path="conflictError"/>
+            </IfPipe>
+
+            <SenderPipe name="conflictError">
+                <FrankSender target="Errors/errorResponse"/>
+                <Param name="status" value="409"/>
+                <Param name="code" value="unique"/>
+                <Param name="title" value="Naam is not unique."/>
+                <Param name="detail" value="A kanaal with this naam already exists."/>
+                <Param name="instance" value="kanaal"/>
+                <Forward name="success" path="Conflict"/>
+            </SenderPipe>
+
+            <UUIDGeneratorPipe name="uuidGenerator" type="ALPHANUMERIC" storeResultInSessionKey="uuid"/>
+
+            <SenderPipe name="createKanaalSender">
+                <FixedQuerySender
+                        name="createKanaalQuerySender"
+                        queryType="OTHER"
+                        query="INSERT INTO kanaal (uuid, naam, documentatie_link, filters) VALUES (?, ?, ?, ?)"
+                        outputFormat="JSON"
+                        datasourceName="jdbc/notificatiecomponent"/>
+                <Param name="uuid" sessionKey="uuid"/>
+                <Param name="naam" sessionKey="originalMessage" jsonPathExpression="$.naam"/>
+                <Param name="documentatie_link" sessionKey="originalMessage" jsonPathExpression="$.documentatie_link"/>
+                <Param name="filters" sessionKey="originalMessage" jsonPathExpression="$.filters"/>
+            </SenderPipe>
+
+            <!-- Tried getting a formatted return using resultType, but that didn't work so query db directly -->
+            <SenderPipe name="fetchCreatedKanaal">
+                <FixedQuerySender
+                        name="getCreatedKanaalQuerySender"
+                        queryType="SELECT"
+                        query="SELECT uuid, naam, documentatie_link, filters FROM kanaal WHERE uuid = ?"
+                        outputFormat="JSON"
+                        datasourceName="jdbc/notificatiecomponent"/>
+                <Param name="uuid" sessionKey="uuid"/>
+            </SenderPipe>
+
+            <DataSonnetPipe
+                    name="createKanaalMap"
+                    styleSheetName="ds/kanaal-create.ds">
+                <Forward name="success" path="OK"/>
+            </DataSonnetPipe>
+        </Pipeline>
+    </Adapter>
+</Module>
