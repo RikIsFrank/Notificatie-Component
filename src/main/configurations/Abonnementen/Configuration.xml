@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE configuration [
-        <!ENTITY DatabaseInputTest    SYSTEM "./CreateAbonnee.xml">
+        <!ENTITY ListAbonnement    SYSTEM "./ListAbonnement.xml">
         ]>
 
 <configuration name="Abonnementen">
-    &DatabaseInputTest;
+    &ListAbonnement;
 </configuration>
