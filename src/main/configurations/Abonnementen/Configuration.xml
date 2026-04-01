@@ -1,7 +1,9 @@
 ﻿<!DOCTYPE configuration [
         <!ENTITY ListAbonnement    SYSTEM "./ListAbonnement.xml">
+        <!ENTITY CreateAbonnement    SYSTEM "./CreateAbonnement.xml">
         ]>
 
 <configuration name="Abonnementen">
     &ListAbonnement;
+    &CreateAbonnement;
 </configuration>

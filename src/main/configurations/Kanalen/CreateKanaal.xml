@@ -93,7 +93,7 @@
                 <Forward name="success" path="BadRequest"/>
             </SenderPipe>
 
-            <SenderPipe name="checkKanaalNameExists" preserveInput="true">
+            <SenderPipe name="checkKanaalNameExists">
                 <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"
                                   queryType="SELECT"
                                   datasourceName="jdbc/notificatiecomponent"
@@ -103,7 +103,7 @@
             
             <IfPipe name="kanaalNameExistsCheck"
                     expressionValue="0"
-                    jsonPathExpression="$.rowset[0].count">
+                    jsonPathExpression="$.rowset[0].COUNT">
                 <Forward name="then" path="uuidGenerator"/>
                 <Forward name="else" path="conflictError"/>
             </IfPipe>
@@ -129,20 +129,17 @@
                         datasourceName="jdbc/notificatiecomponent"/>
                 <Param name="uuid" sessionKey="uuid"/>
                 <Param name="naam" sessionKey="originalMessage" jsonPathExpression="$.naam"/>
-                <Param name="documentatie_link" sessionKey="originalMessage" jsonPathExpression="$.documentatie_link"/>
+                <Param name="documentatie_link" sessionKey="originalMessage" jsonPathExpression="$.documentatieLink"/>
                 <Param name="filters" sessionKey="originalMessage" jsonPathExpression="$.filters"/>
             </SenderPipe>
 
-            <!-- Tried getting a formatted return using resultType, but that didn't work so query db directly -->
-            <SenderPipe name="fetchCreatedKanaal">
-                <FixedQuerySender
-                        name="getCreatedKanaalQuerySender"
-                        queryType="SELECT"
-                        query="SELECT uuid, naam, documentatie_link, filters FROM kanaal WHERE uuid = ?"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+            <ReplacerPipe name="buildCreatedKanaalResponse"
+                          getInputFromSessionKey="originalMessage"
+                getInputFromFixedValue='{"originalMessage":?{originalMessage},"uuid":"?{uuid}"}'>
+                <Param name="originalMessage" sessionKey="originalMessage"/>
                 <Param name="uuid" sessionKey="uuid"/>
-            </SenderPipe>
+                <Forward name="success" path="createKanaalMap"/>
+            </ReplacerPipe>
 
             <DataSonnetPipe
                     name="createKanaalMap"

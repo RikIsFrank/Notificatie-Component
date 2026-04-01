@@ -71,8 +71,8 @@
                                 abonnement.auth,
                                 fg.id AS filter_group_id,
                                 kanaal.naam AS kanaal_naam,
-                                f."KEY" AS filter_key,
-                                f."VALUE" AS filter_value
+                                f.filter_key AS filter_key,
+                                f.filter_value AS filter_value
                             FROM abonnement
                             LEFT JOIN filter_group AS fg
                             ON fg.abonnement_id = abonnement.id

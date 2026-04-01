@@ -16,9 +16,9 @@ local fgRows = std.filter(function(r) r.ID == fgId, abonnementRows);
 local firstFgRow = fgRows[0];
 
 // Build filters object from key/value rows, skip rows with null key (abonnement with no filters)
-local filterRows = std.filter(function(r) r.KEY != null, fgRows);
+local filterRows = std.filter(function(r) r.FILTER_KEY != null, fgRows);
 local filters = std.foldl(
-function(acc, r) acc {[r.KEY]: r.VALUE},
+function(acc, r) acc {[r.FILTER_KEY]: r.FILTER_VALUE},
 filterRows,
 {}
 );
