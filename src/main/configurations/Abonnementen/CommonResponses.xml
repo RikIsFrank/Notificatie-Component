@@ -38,6 +38,16 @@
         <Forward name="success" path="Forbidden"/>
     </SenderPipe>
 
+    <SenderPipe name="notFoundError">
+        <FrankSender target="Errors/errorResponse"/>
+        <Param name="status"   value="404"/>
+        <Param name="code"     sessionKey="responseCode" defaultValue="not_found"/>
+        <Param name="title"    sessionKey="responseTitle" defaultValue="Not found."/>
+        <Param name="detail"   sessionKey="responseDetail" defaultValue="No abonnement with uuid found."/>
+        <Param name="instance" sessionKey="responseInstance"/>
+        <Forward name="success" path="NotFound"/>
+    </SenderPipe>
+
     <SenderPipe name="conflictError">
         <FrankSender target="Errors/errorResponse"/>
         <Param name="status"   value="409"/>

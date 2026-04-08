@@ -1,12 +1,12 @@
-<Module
+﻿<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
-    <Adapter name="readKanaalAdapter">
-        <Receiver name="readKanaalReceiver">
+    <Adapter name="readAbonnementAdapter">
+        <Receiver name="readAbonnementReceiver">
             <ApiListener
-                    name="readKanaalListener"
-                    uriPattern="/kanaal/{uuid}"
+                    name="readAbonnementListener"
+                    uriPattern="/abonnement/{uuid}"
                     method="GET"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -15,6 +15,7 @@
         <Pipeline>
             <Exits>
                 <Exit name="OK" state="SUCCESS" code="200"/>
+                <Exit name="BadRequest" state="ERROR" code="400"/>
                 <Exit name="Unauthorized" state="ERROR" code="401"/>
                 <Exit name="Forbidden" state="ERROR" code="403"/>
                 <Exit name="NotFound" state="ERROR" code="404"/>
@@ -27,7 +28,7 @@
                 <Exit name="InternalServerError" state="ERROR" code="500"/>
             </Exits>
 
-            <PutInSessionPipe name="setInstance" value="kanaal" sessionKey="responseInstance">
+            <PutInSessionPipe name="setInstance" value="abonnement" sessionKey="responseInstance">
                 <Forward name="success" path="checkAuth"/>
             </PutInSessionPipe>
 
@@ -40,44 +41,50 @@
             </SenderPipe>
 
             <SwitchPipe name="authResult">
-                <Forward name="200" path="readKanaalSender"/>
+                <Forward name="200" path="readAbonnementSender"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
 
-            <SenderPipe name="readKanaalSender">
+            <SenderPipe name="readAbonnementSender">
                 <FixedQuerySender
-                        name="readKanaalQuerySender"
+                        name="readAbonnementQuerySender"
                         queryType="SELECT"
-                        query="SELECT uuid, naam, documentatie_link, filters FROM kanaal WHERE uuid = ?"
+                        query='
+                            SELECT
+                                abonnement.uuid,
+                                abonnement.callback_url,
+                                abonnement.auth,
+                                fg.id AS filter_group_id,
+                                kanaal.naam AS kanaal_naam,
+                                f.filter_key AS filter_key,
+                                f.filter_value AS filter_value
+                            FROM abonnement
+                            LEFT JOIN filter_group AS fg
+                            ON fg.abonnement_id = abonnement.id
+                            LEFT JOIN kanaal
+                            ON fg.kanaal_id = kanaal.id
+                            LEFT JOIN filter AS f
+                            ON f.filter_group_id = fg.id
+                            WHERE abonnement.uuid = ?
+                        '
                         outputFormat="JSON"
                         datasourceName="jdbc/notificatiecomponent"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
-            <IfPipe name="kanaalExistsCheck"
+            <IfPipe name="abonnementExistsCheck"
                     expressionValue="0"
                     jsonPathExpression="$.rowset.length()">
                 <Forward name="then" path="notFoundError"/>
-                <Forward name="else" path="readKanaalMap"/>
+                <Forward name="else" path="readAbonnementMap"/>
             </IfPipe>
 
-            <!-- add the uuid to the detail param -->
-<!--            <SenderPipe name="notFoundError">-->
-<!--                <FrankSender target="Errors/errorResponse"/>-->
-<!--                <Param name="status" value="404"/>-->
-<!--                <Param name="code" value="not_found"/>-->
-<!--                <Param name="title" value="Not found."/>-->
-<!--                <Param name="detail" sessionKey="uuid" pattern="No kanaal with uuid {uuid} found."/>-->
-<!--                <Param name="instance" sessionKey="uuid" pattern="/api/v1/kanaal/{uuid}"/>-->
-<!--                <Forward name="success" path="NotFound"/>-->
-<!--            </SenderPipe>-->
-
             <DataSonnetPipe
-                    name="readKanaalMap"
-                    styleSheetName="ds/kanaal-read.ds">
+                    name="readAbonnementMap"
+                    styleSheetName="ds/abonnement-read.ds">
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>
