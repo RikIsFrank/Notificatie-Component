@@ -1,0 +1,51 @@
+﻿<PipelinePart
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schemas.frankframework.org/FrankConfig.xsd"
+>
+
+    <!-- Shared error pipes. Include this file via XML entity in each adapter.
+     Requires the session key 'instance' to be set before these pipes are reached.
+     Example: <PutInSessionPipe name="setInstance" value="kanaal" sessionKey="instance"/> -->
+
+    <SenderPipe name="badRequestError">
+        <FrankSender target="Errors/errorResponse"/>
+        <Param name="status"   value="400"/>
+        <Param name="code"     sessionKey="responseCode" defaultValue="invalid"/>
+        <Param name="title"    sessionKey="responseTitle" defaultValue="Invalid input."/>
+        <Param name="detail"   sessionKey="responseDetail" defaultValue="Invalid input."/>
+        <Param name="instance" sessionKey="responseInstance"/>
+        <Param name="invalidParams" sessionKey="invalidParams"/>
+        <Forward name="success" path="BadRequest"/>
+    </SenderPipe>
+
+    <SenderPipe name="unauthorizedError">
+        <FrankSender target="Errors/errorResponse"/>
+        <Param name="status"   value="401"/>
+        <Param name="code"     sessionKey="responseCode" defaultValue="authentication_failed"/>
+        <Param name="title"    sessionKey="responseTitle" defaultValue="Authentication credentials were not provided."/>
+        <Param name="detail"   sessionKey="responseDetail" defaultValue="Authentication credentials were not provided."/>
+        <Param name="instance" sessionKey="responseInstance"/>
+        <Forward name="success" path="Unauthorized"/>
+    </SenderPipe>
+
+    <SenderPipe name="forbiddenError">
+        <FrankSender target="Errors/errorResponse"/>
+        <Param name="status"   value="403"/>
+        <Param name="code"     sessionKey="responseCode" defaultValue="permission_denied"/>
+        <Param name="title"    sessionKey="responseTitle" defaultValue="You do not have permission to perform this action."/>
+        <Param name="detail"   sessionKey="responseDetail" defaultValue="You do not have permission to perform this action."/>
+        <Param name="instance" sessionKey="responseInstance"/>
+        <Forward name="success" path="Forbidden"/>
+    </SenderPipe>
+
+    <SenderPipe name="conflictError">
+        <FrankSender target="Errors/errorResponse"/>
+        <Param name="status"   value="409"/>
+        <Param name="code"     sessionKey="responseCode" defaultValue="conflict"/>
+        <Param name="title"    sessionKey="responseTitle" defaultValue="Conflict"/>
+        <Param name="detail"   sessionKey="responseDetail" defaultValue="Conflict"/>
+        <Param name="instance" sessionKey="responseInstance"/>
+        <Forward name="success" path="Conflict"/>
+    </SenderPipe>
+
+</PipelinePart>

@@ -1,9 +1,4 @@
-﻿<!DOCTYPE configuration [
-        <!ENTITY ListAbonnement    SYSTEM "./ListAbonnement.xml">
-        <!ENTITY CreateAbonnement    SYSTEM "./CreateAbonnement.xml">
-        ]>
-
-<configuration name="Abonnementen">
-    &ListAbonnement;
-    &CreateAbonnement;
-</configuration>
+﻿<Configuration name="Abonnementen">
+    <Include ref="ListAbonnement.xml"/>
+    <Include ref="CreateAbonnement.xml"/>
+</Configuration>
