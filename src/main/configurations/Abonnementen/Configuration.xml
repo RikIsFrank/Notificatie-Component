@@ -4,5 +4,5 @@
     <Include ref="ReadAbonnement.xml"/>
     <Include ref="UpdateAbonnement.xml"/>
     <Include ref="PartialUpdateAbonnement.xml"/>
-<!--    <Include ref="DeleteAbonnement.xml"/>-->
+    <Include ref="DeleteAbonnement.xml"/>
 </Configuration>

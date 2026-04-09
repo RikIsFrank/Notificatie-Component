@@ -103,7 +103,6 @@
                 Only fields present in the patch body overwrite the existing value.
                 The result becomes the new complete object, stored back as originalMessage.
             -->
-
             <ReplacerPipe name="combineMergeJson"
                           getInputFromSessionKey="originalMessage"
                           getInputFromFixedValue='{"originalMessage":?{originalMessage},"existingAbonnement":?{existingAbonnement}}'>
@@ -115,13 +114,8 @@
             <DataSonnetPipe name="patchMerge"
                             styleSheetName="ds/abonnement-patch-merge.ds"
                             storeResultInSessionKey="originalMessage">
-<!--                <Forward name="success" path="temp"/>-->
                 <Forward name="success" path="abonnementJsonConverter"/>
             </DataSonnetPipe>
-
-<!--            <EchoPipe name="temp">-->
-<!--                <Forward name="success" path="OK"/>-->
-<!--            </EchoPipe>-->
 
             <JsonPipe name="abonnementJsonConverter"
                       getInputFromSessionKey="originalMessage"
