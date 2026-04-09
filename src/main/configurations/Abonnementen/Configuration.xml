@@ -2,4 +2,5 @@
     <Include ref="ListAbonnement.xml"/>
     <Include ref="CreateAbonnement.xml"/>
     <Include ref="ReadAbonnement.xml"/>
+    <Include ref="UpdateAbonnement.xml"/>
 </Configuration>

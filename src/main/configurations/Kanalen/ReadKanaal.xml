@@ -15,6 +15,7 @@
         <Pipeline>
             <Exits>
                 <Exit name="OK" state="SUCCESS" code="200"/>
+                <Exit name="BadRequest" state="ERROR" code="400"/>
                 <Exit name="Unauthorized" state="ERROR" code="401"/>
                 <Exit name="Forbidden" state="ERROR" code="403"/>
                 <Exit name="NotFound" state="ERROR" code="404"/>

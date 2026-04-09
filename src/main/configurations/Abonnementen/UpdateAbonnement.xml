@@ -2,26 +2,26 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
-    <Adapter name="createAbonnementAdapter">
-        <Receiver name="createAbonnementReceiver">
+    <Adapter name="updateAbonnementAdapter">
+        <Receiver name="updateAbonnementReceiver">
             <ApiListener
-                    name="createAbonnementListener"
-                    uriPattern="/abonnement"
-                    method="POST"
+                    name="updateAbonnementListener"
+                    uriPattern="/abonnement/{uuid}"
+                    method="PUT"
                     headerParams="Authorization"
                     allowAllParams="false"
                     consumes="JSON"
                     produces="JSON"/>
         </Receiver>
         <Pipeline>
-            <JsonInputValidator name="validateCreateAbonnementInput"
-                                schema="json/create-abonnement-schema.json">
+            <JsonInputValidator name="validateUpdateAbonnementInput"
+                                schema="json/update-abonnement-schema.json">
                 <Forward name="success" path="setInstance"/>
                 <Forward name="failure" path="buildValidationInvalidParams"/>
             </JsonInputValidator>
 
             <Exits>
-                <Exit name="OK" state="SUCCESS" code="201"/>
+                <Exit name="OK" state="SUCCESS" code="200"/>
                 <Exit name="BadRequest" state="ERROR" code="400"/>
                 <Exit name="Unauthorized" state="ERROR" code="401"/>
                 <Exit name="Forbidden" state="ERROR" code="403"/>
@@ -48,7 +48,7 @@
             </SenderPipe>
 
             <SwitchPipe name="authResult">
-                <Forward name="200" path="abonnementJsonConverter"/>
+                <Forward name="200" path="checkAbonnementExists"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
             </SwitchPipe>
@@ -65,14 +65,31 @@
             <PutInSessionPipe name="storeInvalidParams" sessionKey="invalidParams">
                 <Forward name="success" path="badRequestError"/>
             </PutInSessionPipe>
-            
+
+            <!-- Check if the abonnement to update actually exists -->
+            <SenderPipe name="checkAbonnementExists">
+                <FixedQuerySender
+                        queryType="SELECT"
+                        query="SELECT COUNT(*) AS count FROM abonnement WHERE uuid = ?"
+                        outputFormat="JSON"
+                        datasourceName="jdbc/notificatiecomponent"/>
+                <Param name="uuid" sessionKey="uuid"/>
+            </SenderPipe>
+
+            <IfPipe name="abonnementExistsCheck"
+                    expressionValue="0"
+                    jsonPathExpression="$.rowset[0].COUNT">
+                <Forward name="then" path="notFoundError"/>
+                <Forward name="else" path="abonnementJsonConverter"/>
+            </IfPipe>
+
             <JsonPipe name="abonnementJsonConverter"
                       getInputFromSessionKey="originalMessage"
                       storeResultInSessionKey="originalMessageXml">
                 <Forward name="success" path="checkKanalenNamesExists"/>
             </JsonPipe>
 
-            <!-- check if kanalen exists (foreach) -->
+            <!-- Check if all requested kanalen exist -->
             <ForEachChildElementPipe name="checkKanalenNamesExists" targetElement="naam">
                 <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"
                                   queryType="SELECT"
@@ -81,13 +98,10 @@
                 <Param name="naam" xpathExpression="naam"/>
             </ForEachChildElementPipe>
 
-            <!-- check if value is 0 somewhere (kanaal doesnt exist) -->
             <SwitchPipe name="checkKanalenNamesExistsCheck"
                         xpathExpression="//row/COUNT=0">
-
-                        <Forward name="false" path="checkWebhookExists"/>
-                        <Forward name="true" path="badRequestError"/>
-                        <!-- forward this to another pipe to extract wanted values and store those in invalidParams -->
+                <Forward name="false" path="checkWebhookExists"/>
+                <Forward name="true" path="badRequestError"/>
             </SwitchPipe>
 
             <SenderPipe name="checkWebhookExists"
@@ -108,7 +122,6 @@
                 <Param name="Authorization" sessionKey="originalMessage" jsonPathExpression="$.auth"/>
                 <Param name="content-type" value="application/json"/>
 
-                <!-- find a better way to do this -->
                 <Forward name="200" path="checkDuplicateSubscription"/>
                 <Forward name="201" path="checkDuplicateSubscription"/>
                 <Forward name="202" path="checkDuplicateSubscription"/>
@@ -149,7 +162,6 @@
                 <Forward name="429" path="badRequestError"/>
                 <Forward name="431" path="badRequestError"/>
                 <Forward name="451" path="badRequestError"/>
-
                 <Forward name="500" path="badRequestError"/>
                 <Forward name="501" path="badRequestError"/>
                 <Forward name="502" path="badRequestError"/>
@@ -161,11 +173,8 @@
                 <Forward name="508" path="badRequestError"/>
                 <Forward name="510" path="badRequestError"/>
                 <Forward name="511" path="badRequestError"/>
-
-                <!-- add something for exceptions (host not allowed/recognized) -->
             </SenderPipe>
 
-            <!-- check if abonnement with same callback url and kanaal already exists (foreach) -->
             <ForEachChildElementPipe name="checkDuplicateSubscription"
                                      targetElement="naam"
                                      getInputFromSessionKey="originalMessageXml">
@@ -173,38 +182,35 @@
                         query="SELECT COUNT(*) AS count FROM abonnement a
                    INNER JOIN filter_group fg ON a.id = fg.abonnement_id
                    INNER JOIN kanaal k        ON fg.kanaal_id = k.id
-                   WHERE a.callback_url = ? AND k.naam = ?"
+                   WHERE a.callback_url = ? AND k.naam = ? AND a.uuid != ?"
                         queryType="SELECT"
                         datasourceName="jdbc/notificatiecomponent"
                         outputFormat="XML"/>
                 <Param name="callback_url" sessionKey="originalMessage" jsonPathExpression="$.callbackUrl"/>
                 <Param name="naam" xpathExpression="naam"/>
+                <Param name="uuid" sessionKey="uuid"/>
             </ForEachChildElementPipe>
 
             <SwitchPipe name="duplicateSubscriptionCheck"
                         xpathExpression="count(//row/COUNT[not(contains(text(), '0'))])=0">
                 <Forward name="false" path="conflictError"/>
-                <Forward name="true" path="uuidGenerator"/>
+                <Forward name="true" path="updateAbonnementSender"/>
             </SwitchPipe>
 
-            <UUIDGeneratorPipe name="uuidGenerator" type="ALPHANUMERIC" storeResultInSessionKey="uuid"/>
-
-            <!-- add to db (abonnement, filter_group, filter)-->
-            <SenderPipe name="createAbonnementSender">
+            <SenderPipe name="updateAbonnementSender">
                 <FixedQuerySender
-                        query="INSERT INTO abonnement (
-                        uuid, callback_url, auth) VALUES (?, ?, ?)"
+                        query="UPDATE abonnement SET callback_url = ?, auth = ? WHERE uuid = ?"
                         queryType="OTHER"
                         datasourceName="jdbc/notificatiecomponent"/>
-                <Param name="uuid" sessionKey="uuid"/>
                 <Param name="callback_url" sessionKey="originalMessage" jsonPathExpression="$.callbackUrl"/>
                 <Param name="auth" sessionKey="originalMessage" jsonPathExpression="$.auth"/>
+                <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
-            <SenderPipe name="fetchCreatedAbonnement"
+            <!-- Fetch the internal ID so we can re-insert filter_groups -->
+            <SenderPipe name="fetchAbonnementId"
                         storeResultInSessionKey="abonnementId">
                 <FixedQuerySender
-                        name="getCreatedAbonnementQuerySender"
                         queryType="SELECT"
                         query="SELECT id FROM abonnement WHERE uuid = ?"
                         outputFormat="XML"
@@ -213,103 +219,55 @@
             </SenderPipe>
 
             <!--
-                Loop over each <item> in <kanalen>.
-                The full <item> (naam + filters) is passed as input to the sub-adapter,
-                which handles the filter_group insert and filter inserts itself.
+                Delete all existing filter_groups for this abonnement.
+                The FK constraint has deleteCascade="true", so filters are deleted automatically.
             -->
+            <SenderPipe name="deleteOldFilterGroups">
+                <FixedQuerySender
+                        query="DELETE FROM filter_group WHERE abonnement_id = ?"
+                        queryType="OTHER"
+                        datasourceName="jdbc/notificatiecomponent"/>
+                <Param name="abonnement_id" sessionKey="abonnementId" xpathExpression="//ID"/>
+            </SenderPipe>
+
+            <!-- Re-insert the kanalen and filters from the request body -->
             <ForEachChildElementPipe name="insertKanalenLoop"
                                      elementXPathExpression="//kanalen"
                                      getInputFromSessionKey="originalMessageXml">
+                <!-- Located in the CreateAbonnement.xml -->
                 <FrankSender target="insertKanaalWithFilters"/>
                 <Param name="abonnementId" sessionKey="abonnementId"/>
             </ForEachChildElementPipe>
-            
-            <ReplacerPipe name="buildAbonnementResponse"
-                          getInputFromSessionKey="originalMessage"
-                          getInputFromFixedValue='{"originalMessage":?{originalMessage},"uuid":"?{uuid}"}'>
-                <Param name="originalMessage" sessionKey="originalMessage"/>
+
+            <!-- Read back the updated abonnement to return a consistent response -->
+            <SenderPipe name="readUpdatedAbonnement">
+                <FixedQuerySender
+                        queryType="SELECT"
+                        query="
+                            SELECT
+                                abonnement.uuid,
+                                abonnement.callback_url,
+                                abonnement.auth,
+                                fg.id AS filter_group_id,
+                                kanaal.naam AS kanaal_naam,
+                                f.filter_key AS filter_key,
+                                f.filter_value AS filter_value
+                            FROM abonnement
+                            LEFT JOIN filter_group AS fg ON fg.abonnement_id = abonnement.id
+                            LEFT JOIN kanaal ON fg.kanaal_id = kanaal.id
+                            LEFT JOIN filter AS f ON f.filter_group_id = fg.id
+                            WHERE abonnement.uuid = ?
+                        "
+                        outputFormat="JSON"
+                        datasourceName="jdbc/notificatiecomponent"/>
                 <Param name="uuid" sessionKey="uuid"/>
-                <Forward name="success" path="createAbonnementMap"/>
-            </ReplacerPipe>
+            </SenderPipe>
 
             <DataSonnetPipe
-                    name="createAbonnementMap"
-                    styleSheetName="ds/abonnement-create.ds">
-                <Param name="uuid" sessionKey="uuid"/>
+                    name="updateAbonnementMap"
+                    styleSheetName="ds/abonnement-read.ds">
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
-        </Pipeline>
-    </Adapter>
-
-
-
-    <Adapter name="insertKanaalWithFilters">
-        <Receiver name="insertKanaalWithFiltersReceiver">
-            <FrankListener/>
-        </Receiver>
-        <Pipeline>
-            <Exits>
-                <Exit name="success" state="SUCCESS"/>
-            </Exits>
-
-            <!-- Store the full <item> so we can come back to it after the queries -->
-            <PutInSessionPipe name="storeKanaalItem" sessionKey="kanaalItem"/>
-
-            <!-- 1. Get kanaal id by naam -->
-            <SenderPipe name="lookupKanaalId">
-                <FixedQuerySender
-                        query="SELECT id FROM kanaal WHERE naam = ?"
-                        queryType="SELECT"
-                        datasourceName="jdbc/notificatiecomponent"
-                        outputFormat="XML"/>
-                <Param name="naam" sessionKey="kanaalItem" xpathExpression="//naam"/>
-            </SenderPipe>
-
-            <PutInSessionPipe name="storeKanaalId" sessionKey="kanaalId"/>
-
-            <!-- 2. Insert filter_group -->
-            <SenderPipe name="insertFilterGroup">
-                <FixedQuerySender
-                        query="INSERT INTO filter_group (abonnement_id, kanaal_id) VALUES (?, ?)"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
-                <Param name="abonnement_id" sessionKey="abonnementId" xpathExpression="//ID"/>
-                <Param name="kanaal_id"     sessionKey="kanaalId"     xpathExpression="//ID"/>
-            </SenderPipe>
-
-            <!-- 3. Look up the filter_group id we just created -->
-            <SenderPipe name="fetchFilterGroupId">
-                <FixedQuerySender
-                        query="SELECT fg.id FROM filter_group fg
-                               INNER JOIN abonnement a ON fg.abonnement_id = a.id
-                               INNER JOIN kanaal k     ON fg.kanaal_id     = k.id
-                               WHERE a.id = ? AND k.naam = ?"
-                        queryType="SELECT"
-                        datasourceName="jdbc/notificatiecomponent"
-                        outputFormat="XML"/>
-                <Param name="abonnement_id" sessionKey="abonnementId" xpathExpression="//ID"/>
-                <Param name="naam"          sessionKey="kanaalItem"   xpathExpression="//naam"/>
-            </SenderPipe>
-
-            <PutInSessionPipe name="storeFilterGroupId" sessionKey="filterGroupId"/>
-
-            <!--
-                4. Loop over filter children of this kanaal item.
-                Each child is a <key>value</key> element, e.g. <bronorganisatie>000000000</bronorganisatie>.
-                local-name(*) gives the key, string() gives the value.
-            -->
-            <ForEachChildElementPipe name="insertFilters"
-                                     containerElement="filters"
-                                     getInputFromSessionKey="kanaalItem">
-                <FixedQuerySender
-                        query='INSERT INTO filter (filter_group_id, filter_key, filter_value) VALUES (?, ?, ?)'
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
-                <Param name="filter_group_id" sessionKey="filterGroupId" xpathExpression="//ID"/>
-                <Param name="filter_key"   xpathExpression="local-name(*)"/>
-                <Param name="filter_value" xpathExpression="string()"/>
-                <Forward name="success" path="success"/>
-            </ForEachChildElementPipe>
         </Pipeline>
     </Adapter>
 </Module>
