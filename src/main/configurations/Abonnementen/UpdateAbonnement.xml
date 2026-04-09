@@ -44,7 +44,7 @@
                 <Param name="authorization"
                        sessionKey="headers"
                        xpathExpression="headers/header[@name='Authorization']"/>
-                <Param name="requiredScopes" value='["notificaties.publiceren", "notifcaties.consumeren"]'/>
+                <Param name="requiredScopes" value='["notifcaties.consumeren"]'/>
             </SenderPipe>
 
             <SwitchPipe name="authResult">
