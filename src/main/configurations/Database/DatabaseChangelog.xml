@@ -73,6 +73,10 @@
                         deleteCascade="true"/>
             </column>
         </createTable>
+        <addUniqueConstraint
+                tableName="filter_group"
+                columnNames="abonnement_id, kanaal_id"
+                constraintName="uq_abonnement_kanaal"/>
     </changeSet>
 
     <!-- 4. FILTER -->
@@ -88,16 +92,16 @@
                         references="filter_group(id)"
                         deleteCascade="true"/>
             </column>
-            <column name="key" type="VARCHAR(100)">
+            <column name="filter_key" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="value" type="VARCHAR(1000)">
+            <column name="filter_value" type="VARCHAR(1000)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
         <addUniqueConstraint
                 tableName="filter"
-                columnNames="filter_group_id, key"
+                columnNames="filter_group_id, filter_key"
                 constraintName="uq_filter_group_key"/>
     </changeSet>
 

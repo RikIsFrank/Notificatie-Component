@@ -2,19 +2,19 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
-    <Adapter name="listKanaalAdapter">
-        <Receiver name="listKanaalReceiver">
+    <Adapter name="deleteAbonnementAdapter">
+        <Receiver name="deleteAbonnementReceiver">
             <ApiListener
-                    name="listKanaalListener"
-                    uriPattern="/kanaal"
-                    method="GET"
+                    name="deleteAbonnementListener"
+                    uriPattern="/abonnement/{uuid}"
+                    method="DELETE"
                     headerParams="Authorization"
                     allowAllParams="false"
                     produces="JSON"/>
         </Receiver>
         <Pipeline>
             <Exits>
-                <Exit name="OK" state="SUCCESS" code="200"/>
+                <Exit name="NoContent" state="SUCCESS" code="204"/>
                 <Exit name="BadRequest" state="ERROR" code="400"/>
                 <Exit name="Unauthorized" state="ERROR" code="401"/>
                 <Exit name="Forbidden" state="ERROR" code="403"/>
@@ -28,7 +28,7 @@
                 <Exit name="InternalServerError" state="ERROR" code="500"/>
             </Exits>
 
-            <PutInSessionPipe name="setInstance" value="kanaal" sessionKey="responseInstance">
+            <PutInSessionPipe name="setInstance" value="abonnement" sessionKey="responseInstance">
                 <Forward name="success" path="checkAuth"/>
             </PutInSessionPipe>
 
@@ -37,31 +37,50 @@
                 <Param name="authorization"
                        sessionKey="headers"
                        xpathExpression="headers/header[@name='Authorization']"/>
-                <Param name="requiredScopes" value='["notificaties.publiceren", "notifcaties.consumeren"]'/>
+                <Param name="requiredScopes" value='["notifcaties.consumeren"]'/>
             </SenderPipe>
 
             <SwitchPipe name="authResult">
-                <Forward name="200" path="listKanaalSender"/>
+                <Forward name="200" path="checkAbonnementExists"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
 
-            <SenderPipe name="listKanaalSender">
+            <!-- Check if the abonnement exists before attempting deletion -->
+            <SenderPipe name="checkAbonnementExists">
                 <FixedQuerySender
-                        name="listKanaalQuerySender"
                         queryType="SELECT"
-                        query="SELECT uuid, naam, documentatie_link, filters FROM kanaal"
+                        query="SELECT COUNT(*) AS count FROM abonnement WHERE uuid = ?"
                         outputFormat="JSON"
                         datasourceName="jdbc/notificatiecomponent"/>
+                <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
-            <DataSonnetPipe
-                    name="listKanaalMap"
-                    styleSheetName="ds/kanaal-list.ds">
-                <Forward name="success" path="OK"/>
-            </DataSonnetPipe>
+            <IfPipe name="abonnementExistsCheck"
+                    expressionValue="0"
+                    jsonPathExpression="$.rowset[0].COUNT">
+                <Forward name="then" path="notFoundError"/>
+                <Forward name="else" path="deleteAbonnementSender"/>
+            </IfPipe>
+
+            <!--
+                Delete the abonnement. The FK constraints on filter_group and filter
+                both have deleteCascade="true", so all related rows are removed automatically.
+            -->
+            <SenderPipe name="deleteAbonnementSender">
+                <FixedQuerySender
+                        query="DELETE FROM abonnement WHERE uuid = ?"
+                        queryType="OTHER"
+                        datasourceName="jdbc/notificatiecomponent"/>
+                <Param name="uuid" sessionKey="uuid"/>
+            </SenderPipe>
+
+            <!-- Need a better / cleaner solution for this -->
+            <EchoPipe name="clearResponse" getInputFromFixedValue="204">
+                <Forward name="success" path="NoContent"/>
+            </EchoPipe>
         </Pipeline>
     </Adapter>
 </Module>

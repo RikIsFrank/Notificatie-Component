@@ -1,11 +1,5 @@
-﻿<!DOCTYPE configuration [
-        <!ENTITY ListKanaal    SYSTEM "./ListKanaal.xml">
-        <!ENTITY CreateKanaal    SYSTEM "./CreateKanaal.xml">
-        <!ENTITY ReadKanaal    SYSTEM "./ReadKanaal.xml">
-        ]>
-
-<configuration name="Kanalen">
-    &ListKanaal;
-    &CreateKanaal;
-    &ReadKanaal;
-</configuration>
+﻿<Configuration name="Kanalen">
+    <Include ref="ListKanaal.xml"/>
+    <Include ref="CreateKanaal.xml"/>
+    <Include ref="ReadKanaal.xml"/>
+</Configuration>

@@ -2,11 +2,11 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
-    <Adapter name="listKanaalAdapter">
-        <Receiver name="listKanaalReceiver">
+    <Adapter name="listAbonnementAdapter">
+        <Receiver name="listAbonnementReceiver">
             <ApiListener
-                    name="listKanaalListener"
-                    uriPattern="/kanaal"
+                    name="listAbonnementListener"
+                    uriPattern="/abonnement"
                     method="GET"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -28,7 +28,7 @@
                 <Exit name="InternalServerError" state="ERROR" code="500"/>
             </Exits>
 
-            <PutInSessionPipe name="setInstance" value="kanaal" sessionKey="responseInstance">
+            <PutInSessionPipe name="setInstance" value="abonnement" sessionKey="responseInstance">
                 <Forward name="success" path="checkAuth"/>
             </PutInSessionPipe>
 
@@ -41,25 +41,42 @@
             </SenderPipe>
 
             <SwitchPipe name="authResult">
-                <Forward name="200" path="listKanaalSender"/>
+                <Forward name="200" path="listAbonnementSender"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
+<!--            <Include ref="../Errors/CommonResponses.xml"/>-->
 
-            <SenderPipe name="listKanaalSender">
+            <SenderPipe name="listAbonnementSender">
                 <FixedQuerySender
-                        name="listKanaalQuerySender"
+                        name="listAbonnementQuerySender"
                         queryType="SELECT"
-                        query="SELECT uuid, naam, documentatie_link, filters FROM kanaal"
+                        query='
+                            SELECT
+                                abonnement.uuid,
+                                abonnement.callback_url,
+                                abonnement.auth,
+                                fg.id AS filter_group_id,
+                                kanaal.naam AS kanaal_naam,
+                                f.filter_key AS filter_key,
+                                f.filter_value AS filter_value
+                            FROM abonnement
+                            LEFT JOIN filter_group AS fg
+                            ON fg.abonnement_id = abonnement.id
+                            LEFT JOIN kanaal
+                            ON fg.kanaal_id = kanaal.id
+                            LEFT JOIN filter AS f
+                            ON f.filter_group_id = fg.id
+                        '
                         outputFormat="JSON"
                         datasourceName="jdbc/notificatiecomponent"/>
             </SenderPipe>
 
             <DataSonnetPipe
-                    name="listKanaalMap"
-                    styleSheetName="ds/kanaal-list.ds">
+                    name="listAbonnementMap"
+                    styleSheetName="ds/abonnement-list.ds">
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

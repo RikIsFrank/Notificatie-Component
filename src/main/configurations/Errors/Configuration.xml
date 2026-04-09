@@ -1,7 +1,3 @@
-﻿<!DOCTYPE configuration [
-        <!ENTITY ErrorResponse SYSTEM "./ErrorResponse.xml">
-        ]>
-
-<configuration name="Errors">
-    &ErrorResponse;
-</configuration>
+﻿<Configuration name="Errors">
+    <Include ref="ErrorResponse.xml"/>
+</Configuration>
