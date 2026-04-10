@@ -1,13 +1,3 @@
-﻿<Configuration
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
-    >
-    <Adapter name="testAdapter">
-        <Receiver name="testReceiver">
-            <ApiListener name="testListener" uriPattern="test"/>
-        </Receiver>
-        <Pipeline>
-            <EchoPipe name="HelloWorld" getInputFromFixedValue="Hello World!"/>
-        </Pipeline>
-    </Adapter>
+﻿<Configuration name="Notificaties">
+    <Include ref="CreateNotificatie.xml"/>
 </Configuration>
