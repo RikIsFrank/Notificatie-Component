@@ -145,7 +145,7 @@
                         deleteCascade="true"/>
             </column>
             <column name="attempt" type="SMALLINT" defaultValueNumeric="1">
-                <constraints nullable="false"/>
+                <constraints nullable="false"/> <!-- Auto increment? -->
             </column>
             <column name="response_status" type="INTEGER"/>
             <column name="exception" type="VARCHAR(1000)" defaultValue="">
