@@ -6,7 +6,7 @@
         <Receiver name="createNotificatieReceiver">
             <ApiListener
                     name="createNotificatieListener"
-                    uriPattern="/notificatie"
+                    uriPattern="notificaties"
                     method="POST"
                     headerParams="Authorization"
                     allowAllParams="false"
