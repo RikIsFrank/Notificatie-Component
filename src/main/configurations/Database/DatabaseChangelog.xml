@@ -145,7 +145,7 @@
                         deleteCascade="true"/>
             </column>
             <column name="attempt" type="SMALLINT" defaultValueNumeric="1">
-                <constraints nullable="false"/>
+                <constraints nullable="false"/> <!-- Auto increment? -->
             </column>
             <column name="response_status" type="INTEGER"/>
             <column name="exception" type="VARCHAR(1000)" defaultValue="">
@@ -168,5 +168,34 @@
             </column>
             <column name="label" type="VARCHAR(255)"/>
         </createTable>
+    </changeSet>
+
+    <!-- Got this from frankframework\core\src\main\resources\IAF_Util\IAF_DatabaseChangelog.xml -->
+    <changeSet id="8-create-ibisstore" author="Niels Meijer">
+        <validCheckSum>7:4a9c70190e4678c16c7d392b8ecff571</validCheckSum> <!-- #1481, BLOB->LONGBLOB -->
+        <comment>Add IBISSTORE Table</comment>
+        <createTable tableName="IBISSTORE">
+            <column name="MESSAGEKEY" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="PK_IBISSTORE"/>
+            </column>
+            <column name="TYPE" type="java.sql.Types.CHAR(1)"/>
+            <column name="SLOTID" type="java.sql.Types.VARCHAR(100)"/>
+            <column name="HOST" type="java.sql.Types.VARCHAR(100)"/>
+            <column name="MESSAGEID" type="java.sql.Types.VARCHAR(100)"/>
+            <column name="CORRELATIONID" type="java.sql.Types.VARCHAR(256)"/>
+            <column name="MESSAGEDATE" type="DATETIME"/>
+            <column name="COMMENTS" type="java.sql.Types.VARCHAR(1000)"/>
+            <column name="MESSAGE" type="LONGBLOB"/> <!-- LONGBLOB required for MySQL and MariaDB, compatible with BLOB for other dbmses -->
+            <column name="EXPIRYDATE" type="DATETIME"/>
+            <column name="LABEL" type="java.sql.Types.VARCHAR(100)"/>
+        </createTable>
+        <createIndex tableName="IBISSTORE" indexName="IX_IBISSTORE">
+            <column name="TYPE"/>
+            <column name="SLOTID"/>
+            <column name="MESSAGEDATE"/>
+        </createIndex>
+        <createIndex tableName="IBISSTORE" indexName="IX_IBISSTORE_02">
+            <column name="EXPIRYDATE"/>
+        </createIndex>
     </changeSet>
 </databaseChangeLog>
