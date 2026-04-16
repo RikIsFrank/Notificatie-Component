@@ -94,7 +94,7 @@
             </PutInSessionPipe>
 
             <!-- ToDo kijk als extra checks nodig zijn (hoofdObject, resource, resourceUrl) -->
-            
+
             <SenderPipe name="createNotificatie">
                 <FixedQuerySender query="INSERT INTO notificatie (kanaal_id, forwarded_msg) VALUES (?, ?)"
                                   queryType="OTHER"
@@ -117,7 +117,11 @@
             <PutInSessionPipe name="storeNotificatieId">
                 <Param name="notificatieId" xpathExpression="//row/ID"/>
             </PutInSessionPipe>
-            
+
+            <PutInSessionPipe name="storeNotificatieJson"
+                              getInputFromSessionKey="originalMessage"
+                              sessionKey="notificatieJson"/>
+
             <SenderPipe name="getWebhookUrls">
                 <FixedQuerySender query="SELECT
                                             abonnement.id,
@@ -135,9 +139,10 @@
             </SenderPipe>
 
             <ForEachChildElementPipe name="sendToWebhooks" targetElement="row">
-                <FrankSender target="notifyAbonnementAndSaveResponseAdapter"/>
-                <Param name="notificatieId" sessionKey="notificatieId"/>
-                <Param name="notificatie" sessionKey="originalMessage"/>
+                <MessageStoreSender
+                        slotId="webhook-notificaties"
+                        onlyStoreWhenMessageIdUnique="false"
+                        sessionKeys="notificatieId,notificatieJson"/>
             </ForEachChildElementPipe>
 
             <EchoPipe name="setResponse" getInputFromSessionKey="originalMessage"/>
@@ -148,35 +153,52 @@
 
     <Adapter name="notifyAbonnementAndSaveResponseAdapter">
         <Receiver name="notifyAbonnementAndSaveResponseReceiver">
-            <FrankListener/>
+            <MessageStoreListener
+                    name="sendWebhookNotificatieListener"
+                    slotId="webhook-notificaties"
+                    sessionKeys="notificatieId,notificatieJson"/>
         </Receiver>
         <Pipeline>
             <Exits>
                 <Exit name="success" state="SUCCESS"/>
             </Exits>
 
-            <SenderPipe name="sendToWebhook" getInputFromSessionKey="notificatie">
+            <PutInSessionPipe name="storeAbonnementRow" sessionKey="abonnementRow"/>
+
+            <SenderPipe name="sendToWebhook" getInputFromSessionKey="notificatieJson">
                 <HttpSender
-                        name="checkWebhookHttpSender"
+                        name="webhookHttpSender"
                         methodType="POST"
                         headersParams="Authorization,content-type"
                         resultStatusCodeSessionKey="responseCode"/>
-                <Param name="url" sessionKey="originalMessage" xpathExpression="//CALLBACK_URL"/>
-                <Param name="Authorization" sessionKey="originalMessage" xpathExpression="//AUTH"/>
+                <Param name="url" sessionKey="abonnementRow" xpathExpression="//CALLBACK_URL"/>
+                <Param name="Authorization" sessionKey="abonnementRow" xpathExpression="//AUTH"/>
                 <Param name="content-type" value="application/json"/>
             </SenderPipe>
 
-            <!-- ToDo Test error flow -->
+            <!-- Fail loudly on non-2xx so the message lands in the error store and can be resent from Frank!Console. -->
+            <SwitchPipe name="checkWebhookResponse" getInputFromSessionKey="responseCode">
+                <Forward name="200" path="storeWebhookResponse"/>
+                <Forward name="201" path="storeWebhookResponse"/>
+                <Forward name="202" path="storeWebhookResponse"/>
+                <Forward name="203" path="storeWebhookResponse"/>
+                <Forward name="204" path="storeWebhookResponse"/>
+                <Forward name="205" path="storeWebhookResponse"/>
+                <Forward name="206" path="storeWebhookResponse"/>
+                <Forward name="207" path="storeWebhookResponse"/>
+                <Forward name="208" path="storeWebhookResponse"/>
+                <Forward name="226" path="storeWebhookResponse"/>
+            </SwitchPipe>
+
             <SenderPipe name="storeWebhookResponse">
                 <FixedQuerySender
                         query="INSERT INTO notificatie_response (notificatie_id, abonnement_id, response_status) VALUES (?, ?, ?)"
                         queryType="OTHER"
                         datasourceName="jdbc/notificatiecomponent"/>
                 <Param name="notificatie_id" sessionKey="notificatieId"/>
-                <Param name="abonnement_id" sessionKey="originalMessage" xpathExpression="//ID"/>
+                <Param name="abonnement_id" sessionKey="abonnementRow" xpathExpression="//ID"/>
                 <Param name="response_status" sessionKey="responseCode"/>
             </SenderPipe>
-            
         </Pipeline>
     </Adapter>
 
