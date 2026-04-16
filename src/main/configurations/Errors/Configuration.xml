@@ -1,3 +1,0 @@
-﻿<Configuration name="Errors">
-    <Include ref="ErrorResponse.xml"/>
-</Configuration>

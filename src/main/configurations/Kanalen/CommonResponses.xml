@@ -8,7 +8,7 @@
      Example: <PutInSessionPipe name="setInstance" value="kanaal" sessionKey="instance"/> -->
 
     <SenderPipe name="badRequestError">
-        <FrankSender target="Errors/errorResponse"/>
+        <FrankSender target="HttpResponses/errorResponse"/>
         <Param name="status"   value="400"/>
         <Param name="code"     sessionKey="responseCode" defaultValue="invalid"/>
         <Param name="title"    sessionKey="responseTitle" defaultValue="Invalid input."/>
@@ -19,7 +19,7 @@
     </SenderPipe>
 
     <SenderPipe name="unauthorizedError">
-        <FrankSender target="Errors/errorResponse"/>
+        <FrankSender target="HttpResponses/errorResponse"/>
         <Param name="status"   value="401"/>
         <Param name="code"     sessionKey="responseCode" defaultValue="authentication_failed"/>
         <Param name="title"    sessionKey="responseTitle" defaultValue="Authentication credentials were not provided."/>
@@ -29,7 +29,7 @@
     </SenderPipe>
 
     <SenderPipe name="forbiddenError">
-        <FrankSender target="Errors/errorResponse"/>
+        <FrankSender target="HttpResponses/errorResponse"/>
         <Param name="status"   value="403"/>
         <Param name="code"     sessionKey="responseCode" defaultValue="permission_denied"/>
         <Param name="title"    sessionKey="responseTitle" defaultValue="You do not have permission to perform this action."/>
@@ -39,7 +39,7 @@
     </SenderPipe>
 
     <SenderPipe name="notFoundError">
-        <FrankSender target="Errors/errorResponse"/>
+        <FrankSender target="HttpResponses/errorResponse"/>
         <Param name="status"   value="404"/>
         <Param name="code"     sessionKey="responseCode" defaultValue="not_found"/>
         <Param name="title"    sessionKey="responseTitle" defaultValue="Not found."/>
@@ -49,7 +49,7 @@
     </SenderPipe>
 
     <SenderPipe name="conflictError">
-        <FrankSender target="Errors/errorResponse"/>
+        <FrankSender target="HttpResponses/errorResponse"/>
         <Param name="status"   value="409"/>
         <Param name="code"     sessionKey="responseCode" defaultValue="unique"/>
         <Param name="title"    sessionKey="responseTitle" defaultValue="Naam is not unique."/>
