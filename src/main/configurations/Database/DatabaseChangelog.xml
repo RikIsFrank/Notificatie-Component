@@ -198,4 +198,11 @@
             <column name="EXPIRYDATE"/>
         </createIndex>
     </changeSet>
+
+    <changeSet id="9-create-ibisstore-index" author="Rik">
+        <createIndex tableName="IBISSTORE" indexName="IX_IBISSTORE_03">
+            <column name="SLOTID"/>
+            <column name="MESSAGEID"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>
