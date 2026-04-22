@@ -1,0 +1,12 @@
+﻿[
+  {
+    "url": "http://localhost/api/v1/kanaal/0a000059--2c2ec53c_19d9682b748_-7ffe",
+    "naam": "zaken",
+    "documentatieLink": "http://example.com",
+    "filters": [
+      "test",
+      "zaak",
+      "extra filter"
+    ]
+  }
+]
