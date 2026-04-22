@@ -1,4 +1,4 @@
-local statusStr = payload.status;
+﻿local statusStr = payload.status;
 local statusInt = std.parseInt(statusStr);
 local invParams = payload.invalidParams;
 
@@ -29,3 +29,4 @@ local typeUrls = {
         reason: invParams,
     },
 }
+

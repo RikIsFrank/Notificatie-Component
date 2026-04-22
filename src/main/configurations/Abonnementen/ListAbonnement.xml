@@ -47,7 +47,6 @@
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
-<!--            <Include ref="../Errors/CommonResponses.xml"/>-->
 
             <SenderPipe name="listAbonnementSender">
                 <FixedQuerySender
