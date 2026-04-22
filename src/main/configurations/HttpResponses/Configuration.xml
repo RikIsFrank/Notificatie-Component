@@ -1,4 +1,4 @@
 ﻿<Configuration name="HttpResponses">
-    <Include ref="ErrorResponse.xml"/>
+    <Include ref="BuildResponse.xml"/>
 </Configuration>
 
