@@ -1,4 +1,4 @@
-﻿<Module
+<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
@@ -234,8 +234,10 @@
 
             <DataSonnetPipe
                     name="createAbonnementMap"
-                    styleSheetName="ds/abonnement-create.ds">
+                    styleSheetName="ds/abonnement-create.ds"
+                    getInputFromSessionKey="originalMessage">
                 <Param name="uuid" sessionKey="uuid"/>
+                <Param name="baseUrl" value="${nc.api.base-url}/abonnement/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

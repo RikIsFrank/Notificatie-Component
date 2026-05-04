@@ -110,6 +110,7 @@
             <DataSonnetPipe
                     name="createKanaalMap"
                     styleSheetName="ds/kanaal-create.ds">
+                <Param name="baseUrl" value="${nc.api.base-url}/kanaal/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

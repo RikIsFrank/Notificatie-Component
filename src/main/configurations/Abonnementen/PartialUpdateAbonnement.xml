@@ -291,6 +291,7 @@
             <DataSonnetPipe
                     name="patchAbonnementMap"
                     styleSheetName="ds/abonnement-read.ds">
+                <Param name="baseUrl" value="${nc.api.base-url}/abonnement/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

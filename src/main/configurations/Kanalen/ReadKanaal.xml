@@ -68,6 +68,7 @@
             <DataSonnetPipe
                     name="readKanaalMap"
                     styleSheetName="ds/kanaal-read.ds">
+                <Param name="baseUrl" value="${nc.api.base-url}/kanaal/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

@@ -1,4 +1,4 @@
-﻿<Module
+<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
@@ -60,6 +60,7 @@
             <DataSonnetPipe
                     name="listKanaalMap"
                     styleSheetName="ds/kanaal-list.ds">
+                <Param name="baseUrl" value="${nc.api.base-url}/kanaal/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>
