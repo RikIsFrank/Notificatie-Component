@@ -75,7 +75,6 @@
             <SenderPipe name="checkKanaalNameExists">
                 <FixedQuerySender query="SELECT id FROM kanaal WHERE naam = ?"
                                   queryType="SELECT"
-                                  datasourceName="jdbc/notificatiecomponent"
                                   outputFormat="XML"/>
                 <Param name="naam" xpathExpression="//kanaal"/>
             </SenderPipe>
@@ -97,8 +96,7 @@
 
             <SenderPipe name="createNotificatie">
                 <FixedQuerySender query="INSERT INTO notificatie (kanaal_id, forwarded_msg) VALUES (?, ?)"
-                                  queryType="OTHER"
-                                  datasourceName="jdbc/notificatiecomponent"/>
+                                  queryType="OTHER"/>
                 <Param name="kanaal_id" sessionKey="kanaalId"/>
                 <Param name="forwarded_msg" sessionKey="originalMessage"/>
             </SenderPipe>
@@ -108,7 +106,6 @@
                 <FixedQuerySender query="SELECT id FROM notificatie WHERE kanaal_id = ? AND forwarded_msg = ?
                 ORDER BY id DESC LIMIT 1"
                                   queryType="SELECT"
-                                  datasourceName="jdbc/notificatiecomponent"
                                   outputFormat="XML"/>
                 <Param name="kanaal_id" sessionKey="kanaalId"/>
                 <Param name="forwarded_msg" sessionKey="originalMessage"/>
@@ -133,7 +130,6 @@
                                         on fg.abonnement_id = abonnement.id
                                         WHERE fg.kanaal_id = ?"
                                   queryType="SELECT"
-                                  datasourceName="jdbc/notificatiecomponent"
                                   outputFormat="XML"/>
                 <Param name="kanaal_id" sessionKey="kanaalId"/>
             </SenderPipe>
@@ -193,8 +189,7 @@
             <SenderPipe name="storeWebhookResponse">
                 <FixedQuerySender
                         query="INSERT INTO notificatie_response (notificatie_id, abonnement_id, response_status) VALUES (?, ?, ?)"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="notificatie_id" sessionKey="notificatieId"/>
                 <Param name="abonnement_id" sessionKey="abonnementRow" xpathExpression="//ID"/>
                 <Param name="response_status" sessionKey="responseCode"/>

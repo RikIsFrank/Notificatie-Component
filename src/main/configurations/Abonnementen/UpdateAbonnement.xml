@@ -71,8 +71,7 @@
                 <FixedQuerySender
                         queryType="SELECT"
                         query="SELECT COUNT(*) AS count FROM abonnement WHERE uuid = ?"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
@@ -93,7 +92,6 @@
             <ForEachChildElementPipe name="checkKanalenNamesExists" targetElement="naam">
                 <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"
                                   queryType="SELECT"
-                                  datasourceName="jdbc/notificatiecomponent"
                                   outputFormat="XML"/>
                 <Param name="naam" xpathExpression="naam"/>
             </ForEachChildElementPipe>
@@ -184,7 +182,6 @@
                    INNER JOIN kanaal k        ON fg.kanaal_id = k.id
                    WHERE a.callback_url = ? AND k.naam = ? AND a.uuid != ?"
                         queryType="SELECT"
-                        datasourceName="jdbc/notificatiecomponent"
                         outputFormat="XML"/>
                 <Param name="callback_url" sessionKey="originalMessage" jsonPathExpression="$.callbackUrl"/>
                 <Param name="naam" xpathExpression="naam"/>
@@ -200,8 +197,7 @@
             <SenderPipe name="updateAbonnementSender">
                 <FixedQuerySender
                         query="UPDATE abonnement SET callback_url = ?, auth = ? WHERE uuid = ?"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="callback_url" sessionKey="originalMessage" jsonPathExpression="$.callbackUrl"/>
                 <Param name="auth" sessionKey="originalMessage" jsonPathExpression="$.auth"/>
                 <Param name="uuid" sessionKey="uuid"/>
@@ -213,8 +209,7 @@
                 <FixedQuerySender
                         queryType="SELECT"
                         query="SELECT id FROM abonnement WHERE uuid = ?"
-                        outputFormat="XML"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="XML"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
@@ -225,8 +220,7 @@
             <SenderPipe name="deleteOldFilterGroups">
                 <FixedQuerySender
                         query="DELETE FROM filter_group WHERE abonnement_id = ?"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="abonnement_id" sessionKey="abonnementId" xpathExpression="//ID"/>
             </SenderPipe>
 
@@ -258,8 +252,7 @@
                             LEFT JOIN filter AS f ON f.filter_group_id = fg.id
                             WHERE abonnement.uuid = ?
                         "
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 

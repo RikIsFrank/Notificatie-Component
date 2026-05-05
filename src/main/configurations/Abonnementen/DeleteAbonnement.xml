@@ -53,8 +53,7 @@
                 <FixedQuerySender
                         queryType="SELECT"
                         query="SELECT COUNT(*) AS count FROM abonnement WHERE uuid = ?"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
@@ -72,8 +71,7 @@
             <SenderPipe name="deleteAbonnementSender">
                 <FixedQuerySender
                         query="DELETE FROM abonnement WHERE uuid = ?"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 

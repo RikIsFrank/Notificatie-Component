@@ -70,8 +70,7 @@
                             ON f.filter_group_id = fg.id
                             WHERE abonnement.uuid = ?
                         '
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 

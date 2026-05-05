@@ -72,7 +72,6 @@
             <SenderPipe name="checkKanaalNameExists">
                 <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"
                                   queryType="SELECT"
-                                  datasourceName="jdbc/notificatiecomponent"
                                   outputFormat="JSON"/>
                 <Param name="naam" sessionKey="originalMessage" jsonPathExpression="$.naam"/>
             </SenderPipe>
@@ -91,8 +90,7 @@
                         name="createKanaalQuerySender"
                         queryType="OTHER"
                         query="INSERT INTO kanaal (uuid, naam, documentatie_link, filters) VALUES (?, ?, ?, ?)"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
                 <Param name="naam" sessionKey="originalMessage" jsonPathExpression="$.naam"/>
                 <Param name="documentatie_link" sessionKey="originalMessage" jsonPathExpression="$.documentatieLink"/>

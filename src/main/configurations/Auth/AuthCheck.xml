@@ -44,7 +44,6 @@
                         name="lookupSecretQuery"
                         queryType="SELECT"
                         query="SELECT secret FROM jwt_secret WHERE client_id = ?"
-                        datasourceName="jdbc/notificatiecomponent"
                         outputFormat="JSON">
                     <Param name="1" sessionKey="clientId"/>
                 </FixedQuerySender>

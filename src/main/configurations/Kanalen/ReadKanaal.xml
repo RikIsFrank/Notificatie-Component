@@ -53,8 +53,7 @@
                         name="readKanaalQuerySender"
                         queryType="SELECT"
                         query="SELECT uuid, naam, documentatie_link, filters FROM kanaal WHERE uuid = ?"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 

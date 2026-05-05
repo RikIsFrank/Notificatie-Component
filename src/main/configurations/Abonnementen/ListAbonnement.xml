@@ -69,8 +69,7 @@
                             LEFT JOIN filter AS f
                             ON f.filter_group_id = fg.id
                         '
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
             </SenderPipe>
 
             <DataSonnetPipe

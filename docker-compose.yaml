@@ -6,6 +6,8 @@ services:
     environment:
       TZ: Europe/Amsterdam
       dtap.stage: LOC
+    env_file:
+      - .env
     volumes:
       - logs:/usr/local/tomcat/logs
     ports:

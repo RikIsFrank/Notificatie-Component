@@ -1,0 +1,15 @@
+jdbc:
+  - name: "notificatiecomponent"
+    type: "org.h2.jdbcx.JdbcDataSource"
+    url: "jdbc:h2:./data/notificaties"
+    factory: "org.apache.naming.factory.BeanFactory"
+
+  - name: "notificatiecomponent-postgresql"
+    type: "javax.sql.DataSource"
+    url: "jdbc:postgresql://db:5432/notificaties"
+    driverClassName: "org.postgresql.Driver"
+    auth: "Container"
+    username: "frank"
+    password: "frank"
+    maxTotal: "20"
+    maxIdle: "10"

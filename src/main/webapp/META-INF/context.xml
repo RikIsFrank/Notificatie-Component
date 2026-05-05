@@ -8,6 +8,18 @@
             URL="jdbc:h2:./data/notificaties"/>
 
 <!--    Docker PostgreSQL -->
+    <Resource
+            name="jdbc/notificatiecomponent-postgresql"
+            type="javax.sql.DataSource"
+            url="jdbc:postgresql://db:5432/notificaties"
+            driverClassName="org.postgresql.Driver"
+            auth="Container"
+            username="frank"
+            password="frank"
+            maxTotal="20"
+            maxIdle="10"/>
+
+<!--    Docker PostgreSQL -->
 <!--    <Resource-->
 <!--            name="jdbc/notificatiecomponent"-->
 <!--            auth="Container"-->

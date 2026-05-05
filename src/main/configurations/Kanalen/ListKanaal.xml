@@ -53,8 +53,7 @@
                         name="listKanaalQuerySender"
                         queryType="SELECT"
                         query="SELECT uuid, naam, documentatie_link, filters FROM kanaal"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
             </SenderPipe>
 
             <DataSonnetPipe
