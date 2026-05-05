@@ -6,7 +6,7 @@
         <Receiver name="readAbonnementReceiver">
             <ApiListener
                     name="readAbonnementListener"
-                    uriPattern="/abonnement/{uuid}"
+                    uriPattern="v1/abonnement/{uuid}"
                     method="GET"
                     headerParams="Authorization"
                     allowAllParams="false"

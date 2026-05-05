@@ -6,7 +6,7 @@
         <Receiver name="deleteAbonnementReceiver">
             <ApiListener
                     name="deleteAbonnementListener"
-                    uriPattern="/abonnement/{uuid}"
+                    uriPattern="v1/abonnement/{uuid}"
                     method="DELETE"
                     headerParams="Authorization"
                     allowAllParams="false"

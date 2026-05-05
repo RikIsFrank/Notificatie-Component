@@ -6,7 +6,7 @@
         <Receiver name="createAbonnementReceiver">
             <ApiListener
                     name="createAbonnementListener"
-                    uriPattern="/abonnement"
+                    uriPattern="v1/abonnement"
                     method="POST"
                     headerParams="Authorization"
                     allowAllParams="false"
