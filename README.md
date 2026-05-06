@@ -53,6 +53,21 @@ This will start:
 - **Frank Flow (UI)**: Available at `http://localhost:8090`
 - **PostgreSQL Database**: Running on port 5432
 
+## Configuration Files
+
+| File | Local | Docker | Notes |
+|---|:---:|:---:|---|
+| `frank-runner.properties` | ✅ | ❌ | Port (`tomcat.connector.port`), FF version |
+| `src/main/webapp/META-INF/context.xml` | ✅ | ✅ | Tomcat JNDI datasource definitions; local uses H2, Docker copies this as ROOT.xml but relies on `resources.yml` instead |
+| `src/main/resources/resources.yml` | ❌ | ✅ | Frank!Framework datasource registration for PostgreSQL |
+| `.env` | ❌ | ✅ | Injected as env vars by Docker Compose (`jdbc.datasource.default`, `PORT`) |
+| `docker-compose.yaml` | ❌ | ✅ | Service orchestration (app, frank-flow, postgres) |
+| `Dockerfile` | ❌ | ✅ | Container build |
+| `src/main/resources/DeploymentSpecifics.properties` | ✅ | ✅ | Instance properties (`nc.api.base-url`, migrator, auth config) |
+| `src/main/resources/credentialprovider.properties` | ✅ | ✅ | Points to the credentials file |
+| `src/main/secrets/credentials.properties` | ✅ | ✅ | JWT secrets for Open Zaak — **gitignored**, create manually |
+| `src/main/configurations/**` | ✅ | ✅ | All Frank!Framework pipeline logic |
+
 ## Support
 
 No

@@ -1,0 +1,15 @@
+info:
+  name: Delete
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/0a000059--6e4565a_19df82be0f1_-7fe0"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

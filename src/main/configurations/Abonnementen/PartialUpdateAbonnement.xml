@@ -6,7 +6,7 @@
         <Receiver name="partialUpdateAbonnementReceiver">
             <ApiListener
                     name="partialUpdateAbonnementListener"
-                    uriPattern="/abonnement/{uuid}"
+                    uriPattern="v1/abonnement/{uuid}"
                     method="PATCH"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -284,6 +284,7 @@
             <DataSonnetPipe
                     name="patchAbonnementMap"
                     styleSheetName="ds/abonnement-read.ds">
+                <Param name="baseUrl" value="${nc.api.base-url}/abonnement/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

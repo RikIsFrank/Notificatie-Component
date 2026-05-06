@@ -1,8 +1,6 @@
-﻿local base = 'http://localhost/api/v1/abonnement/';  //make dynamic
-
 {
-  url: base + payload.uuid,
-  callbackUrl: payload.originalMessage.callbackUrl,
-  auth: payload.originalMessage.auth,
-  kanalen: payload.originalMessage.kanalen,
+  url: baseUrl + uuid,
+  callbackUrl: payload.callbackUrl,
+  auth: payload.auth,
+  kanalen: payload.kanalen,
 }
