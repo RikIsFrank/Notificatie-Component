@@ -1,5 +1,4 @@
 ﻿local rows = payload.rowset;
-local base = 'http://localhost/api/v1/abonnement/';
 
 // Group rows by abonnement uuid
 local abonnementUuids = std.uniq(std.map(function(r) r.UUID, rows));
@@ -29,7 +28,7 @@ filterRows,
 }, fgIds);
 
 {
-  url: base + uuid,
+  url: baseUrl + uuid,
   auth: firstRow.AUTH,
   callbackUrl: firstRow.CALLBACK_URL,
   kanalen: kanalen,

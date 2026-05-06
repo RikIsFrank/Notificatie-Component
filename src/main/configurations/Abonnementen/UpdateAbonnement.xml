@@ -6,7 +6,7 @@
         <Receiver name="updateAbonnementReceiver">
             <ApiListener
                     name="updateAbonnementListener"
-                    uriPattern="/abonnement/{uuid}"
+                    uriPattern="v1/abonnement/{uuid}"
                     method="PUT"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -266,6 +266,7 @@
             <DataSonnetPipe
                     name="updateAbonnementMap"
                     styleSheetName="ds/abonnement-read.ds">
+                <Param name="baseUrl" value="${nc.api.base-url}/abonnement/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

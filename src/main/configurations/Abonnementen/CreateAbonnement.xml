@@ -1,4 +1,4 @@
-﻿<Module
+<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
@@ -6,7 +6,7 @@
         <Receiver name="createAbonnementReceiver">
             <ApiListener
                     name="createAbonnementListener"
-                    uriPattern="/abonnement"
+                    uriPattern="v1/abonnement"
                     method="POST"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -223,19 +223,13 @@
                 <FrankSender target="insertKanaalWithFilters"/>
                 <Param name="abonnementId" sessionKey="abonnementId"/>
             </ForEachChildElementPipe>
-            
-            <ReplacerPipe name="buildAbonnementResponse"
-                          getInputFromSessionKey="originalMessage"
-                          getInputFromFixedValue='{"originalMessage":?{originalMessage},"uuid":"?{uuid}"}'>
-                <Param name="originalMessage" sessionKey="originalMessage"/>
-                <Param name="uuid" sessionKey="uuid"/>
-                <Forward name="success" path="createAbonnementMap"/>
-            </ReplacerPipe>
 
             <DataSonnetPipe
                     name="createAbonnementMap"
-                    styleSheetName="ds/abonnement-create.ds">
+                    styleSheetName="ds/abonnement-create.ds"
+                    getInputFromSessionKey="originalMessage">
                 <Param name="uuid" sessionKey="uuid"/>
+                <Param name="baseUrl" value="${nc.api.base-url}/abonnement/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

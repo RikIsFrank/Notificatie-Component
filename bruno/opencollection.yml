@@ -1,0 +1,18 @@
+opencollection: 1.0.0
+
+info:
+  name: WeAreFrank Notificatie Component
+config:
+  proxy:
+    inherit: true
+
+request:
+  auth:
+    type: bearer
+    token: "{{JWT_TOKEN}}"
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

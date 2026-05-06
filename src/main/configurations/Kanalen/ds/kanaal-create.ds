@@ -1,8 +1,6 @@
-﻿local base = "http://localhost/api/v1/kanaal/";
-
 {
-  url: base + payload.uuid,
-  naam: payload.originalMessage.naam,
-  documentatieLink: payload.originalMessage.documentatieLink,
-  filters: payload.originalMessage.filters,
+  url: baseUrl + uuid,
+  naam: payload.naam,
+  documentatieLink: payload.documentatieLink,
+  filters: payload.filters,
 }

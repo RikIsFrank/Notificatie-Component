@@ -6,7 +6,7 @@
         <Receiver name="createKanaalReceiver">
             <ApiListener
                     name="createKanaalListener"
-                    uriPattern="/kanaal"
+                    uriPattern="v1/kanaal"
                     method="POST"
                     headerParams="Authorization"
                     consumes="JSON"
@@ -99,17 +99,12 @@
                 <Param name="filters" sessionKey="originalMessage" jsonPathExpression="$.filters"/>
             </SenderPipe>
 
-            <ReplacerPipe name="buildCreatedKanaalResponse"
-                          getInputFromSessionKey="originalMessage"
-                          getInputFromFixedValue='{"originalMessage":?{originalMessage},"uuid":"?{uuid}"}'>
-                <Param name="originalMessage" sessionKey="originalMessage"/>
-                <Param name="uuid" sessionKey="uuid"/>
-                <Forward name="success" path="createKanaalMap"/>
-            </ReplacerPipe>
-
             <DataSonnetPipe
                     name="createKanaalMap"
-                    styleSheetName="ds/kanaal-create.ds">
+                    styleSheetName="ds/kanaal-create.ds"
+                    getInputFromSessionKey="originalMessage">
+                <Param name="uuid" sessionKey="uuid"/>
+                <Param name="baseUrl" value="${nc.api.base-url}/kanaal/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>
