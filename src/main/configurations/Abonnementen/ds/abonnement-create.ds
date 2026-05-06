@@ -1,4 +1,4 @@
-﻿{
+{
   url: baseUrl + uuid,
   callbackUrl: payload.callbackUrl,
   auth: payload.auth,
