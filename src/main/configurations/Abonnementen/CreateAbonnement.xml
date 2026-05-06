@@ -223,14 +223,6 @@
                 <FrankSender target="insertKanaalWithFilters"/>
                 <Param name="abonnementId" sessionKey="abonnementId"/>
             </ForEachChildElementPipe>
-            
-            <ReplacerPipe name="buildAbonnementResponse"
-                          getInputFromSessionKey="originalMessage"
-                          getInputFromFixedValue='{"originalMessage":?{originalMessage},"uuid":"?{uuid}"}'>
-                <Param name="originalMessage" sessionKey="originalMessage"/>
-                <Param name="uuid" sessionKey="uuid"/>
-                <Forward name="success" path="createAbonnementMap"/>
-            </ReplacerPipe>
 
             <DataSonnetPipe
                     name="createAbonnementMap"
