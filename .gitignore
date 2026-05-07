@@ -5,6 +5,6 @@
 /data/
 *.iml
 /docusaurus/yarn.lock
-*.env
+*bruno/.env
 
 FrankConfig.xsd
