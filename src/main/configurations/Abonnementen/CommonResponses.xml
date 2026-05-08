@@ -22,8 +22,8 @@
         <FrankSender target="HttpResponses/buildResponse"/>
         <Param name="status"   value="401"/>
         <Param name="code"     sessionKey="responseCode" defaultValue="authentication_failed"/>
-        <Param name="title"    sessionKey="responseTitle" defaultValue="Authentication credentials were not provided."/>
-        <Param name="detail"   sessionKey="responseDetail" defaultValue="Authentication credentials were not provided."/>
+        <Param name="title"    sessionKey="responseTitle" defaultValue="Authentication credentials were not provided or not correct."/>
+        <Param name="detail"   sessionKey="responseDetail" defaultValue="Authentication credentials were not provided or not correct."/>
         <Param name="instance" sessionKey="responseInstance"/>
         <Forward name="success" path="Unauthorized"/>
     </SenderPipe>
@@ -56,6 +56,16 @@
         <Param name="detail"   sessionKey="responseDetail" defaultValue="A subscription with this callbackUrl already exists for one or more of the requested kanalen."/>
         <Param name="instance" sessionKey="responseInstance"/>
         <Forward name="success" path="Conflict"/>
+    </SenderPipe>
+
+    <SenderPipe name="exception">
+        <FrankSender target="HttpResponses/buildResponse"/>
+        <Param name="status"   value="500"/>
+        <Param name="code"     sessionKey="responseCode" defaultValue="internal_server_error"/>
+        <Param name="title"    sessionKey="responseTitle" defaultValue="Internal Server Error."/>
+        <Param name="detail"   sessionKey="responseDetail" defaultValue="Something went wrong. Please try again later."/>
+        <Param name="instance" sessionKey="responseInstance"/>
+        <Forward name="success" path="InternalServerError"/>
     </SenderPipe>
 
 </PipelinePart>

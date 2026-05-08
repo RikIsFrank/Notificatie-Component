@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 function decodeAndValidate(jwt) {
     if (!jwt || jwt === "null") return JSON.stringify({ status: "401" });
@@ -78,7 +78,7 @@ function checkScopes(acResponseJson, requiredScopesJson) {
         }
     })
 
-    return hasScope ? "200" : "401";
+    return hasScope ? "200" : "403";
 }
 
 function _toBytes(str) {
