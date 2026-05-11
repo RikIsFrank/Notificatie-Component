@@ -4,7 +4,7 @@
   "title": "Open Notificatie Abonnement",
   "type": "object",
   "additionalProperties": false,
-  "required": ["callbackUrl", "auth"],
+  "required": ["callbackUrl", "auth", "kanalen"],
   "properties": {
     "callbackUrl": {
       "type": "string",

@@ -56,17 +56,6 @@
 
             <Include ref="CommonResponses.xml"/>
 
-            <ReplacerPipe name="buildValidationInvalidParams"
-                          getInputFromSessionKey="failureReason"
-                          getInputFromFixedValue='"?{validationException}"'>
-                <Param name="validationException" sessionKey="failureReason"/>
-                <Forward name="success" path="storeInvalidParams"/>
-            </ReplacerPipe>
-
-            <PutInSessionPipe name="storeInvalidParams" sessionKey="invalidParams">
-                <Forward name="success" path="badRequestError"/>
-            </PutInSessionPipe>
-
             <!-- Check if abonnement exists and fetch the current data for merging -->
             <SenderPipe name="checkAbonnementExists"
                         storeResultInSessionKey="existingAbonnement">

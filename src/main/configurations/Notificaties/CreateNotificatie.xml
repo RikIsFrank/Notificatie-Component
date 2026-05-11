@@ -56,17 +56,6 @@
 
             <Include ref="CommonResponses.xml"/>
 
-            <ReplacerPipe name="buildValidationInvalidParams"
-                          getInputFromSessionKey="failureReason"
-                          getInputFromFixedValue='"?{validationException}"'>
-                <Param name="validationException" sessionKey="failureReason"/>
-                <Forward name="success" path="storeInvalidParams"/>
-            </ReplacerPipe>
-
-            <PutInSessionPipe name="storeInvalidParams" sessionKey="invalidParams">
-                <Forward name="success" path="badRequestError"/>
-            </PutInSessionPipe>
-
             <JsonPipe name="notificatieJsonConverter"
                       getInputFromSessionKey="originalMessage"
                       storeResultInSessionKey="originalMessageXml">

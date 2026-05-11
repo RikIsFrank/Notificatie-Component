@@ -7,6 +7,20 @@
      Requires the session key 'instance' to be set before these pipes are reached.
      Example: <PutInSessionPipe name="setInstance" value="kanaal" sessionKey="instance"/> -->
 
+    <!-- Called on JsonValidatorPipe failure. Reads failureReason from session,
+         parses the [/pointer: message, ...] format into a ZGW invalidParams array,
+         then stores it and routes to badRequestError. -->
+    <DataSonnetPipe name="buildValidationInvalidParams"
+                    styleSheetName="ds/parse-validation-errors.ds"
+                    getInputFromFixedValue="{}">
+        <Param name="failureReason" sessionKey="failureReason"/>
+        <Forward name="success" path="storeInvalidParams"/>
+    </DataSonnetPipe>
+
+    <PutInSessionPipe name="storeInvalidParams" sessionKey="invalidParams">
+        <Forward name="success" path="badRequestError"/>
+    </PutInSessionPipe>
+
     <SenderPipe name="badRequestError">
         <FrankSender target="HttpResponses/buildResponse"/>
         <Param name="status"   value="400"/>
