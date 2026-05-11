@@ -167,6 +167,8 @@
                 <Forward name="508" path="setCallbackUrlInvalidParams"/>
                 <Forward name="510" path="setCallbackUrlInvalidParams"/>
                 <Forward name="511" path="setCallbackUrlInvalidParams"/>
+
+                <!-- add something for exceptions (host not allowed/recognized) -->
             </SenderPipe>
 
             <PutInSessionPipe name="setCallbackUrlInvalidParams"

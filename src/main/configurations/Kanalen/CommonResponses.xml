@@ -7,7 +7,7 @@
      Requires the session key 'instance' to be set before these pipes are reached.
      Example: <PutInSessionPipe name="setInstance" value="kanaal" sessionKey="instance"/> -->
 
-    <!-- Called on JsonValidatorPipe failure. Reads failureReason from session,
+    <!-- Called on JsonInputValidator failure. Reads failureReason from session,
          parses the [/pointer: message, ...] format into a ZGW invalidParams array,
          then stores it and routes to badRequestError. -->
     <DataSonnetPipe name="buildValidationInvalidParams"
