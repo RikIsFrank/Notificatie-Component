@@ -56,17 +56,6 @@
 
             <Include ref="CommonResponses.xml"/>
 
-            <ReplacerPipe name="buildValidationInvalidParams"
-                          getInputFromSessionKey="failureReason"
-                          getInputFromFixedValue='"?{validationException}"'>
-                <Param name="validationException" sessionKey="failureReason"/>
-                <Forward name="success" path="storeInvalidParams"/>
-            </ReplacerPipe>
-
-            <PutInSessionPipe name="storeInvalidParams" sessionKey="invalidParams">
-                <Forward name="success" path="badRequestError"/>
-            </PutInSessionPipe>
-
             <JsonPipe name="notificatieJsonConverter"
                       getInputFromSessionKey="originalMessage"
                       storeResultInSessionKey="originalMessageXml">
@@ -80,20 +69,22 @@
                 <Param name="naam" xpathExpression="//kanaal"/>
             </SenderPipe>
 
-            <!-- check if 1 id is returned -->
             <SwitchPipe name="checkKanaalNameExistsCheck"
                         xpathExpression="count(//row/ID)=1">
                 <Forward name="true" path="storeKanaalId"/>
-                <Forward name="false" path="badRequestError"/>
-                <!-- forward this to another pipe to extract wanted values and store those in invalidParams -->
+                <Forward name="false" path="setKanaalNotFoundParams"/>
             </SwitchPipe>
+
+            <PutInSessionPipe name="setKanaalNotFoundParams"
+                              value='[{"name": "kanaal", "code": "does_not_exist", "reason": "Kanaal with this name does not exist."}]'
+                              sessionKey="invalidParams">
+                <Forward name="success" path="badRequestError"/>
+            </PutInSessionPipe>
 
             <PutInSessionPipe name="storeKanaalId">
                 <Param name="kanaalId" xpathExpression="//row/ID"/>
                 <Forward name="success" path="createNotificatie"/>
             </PutInSessionPipe>
-
-            <!-- ToDo kijk als extra checks nodig zijn (hoofdObject, resource, resourceUrl) -->
 
             <SenderPipe name="createNotificatie">
                 <FixedQuerySender query="INSERT INTO notificatie (kanaal_id, forwarded_msg) VALUES (?, ?)"

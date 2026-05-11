@@ -14,6 +14,12 @@
                     produces="JSON"/>
         </Receiver>
         <Pipeline>
+            <JsonInputValidator name="validateCreateKanaalInput"
+                                schema="json/create-kanaal-schema.json">
+                <Forward name="success" path="setInstance"/>
+                <Forward name="failure" path="buildValidationInvalidParams"/>
+            </JsonInputValidator>
+
             <Exits>
                 <Exit name="OK" state="SUCCESS" code="201"/>
                 <Exit name="BadRequest" state="ERROR" code="400"/>
@@ -42,33 +48,13 @@
             </SenderPipe>
 
             <SwitchPipe name="authResult">
-                <Forward name="200" path="createKanaalValidator"/>
+                <Forward name="200" path="checkKanaalNameExists"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
                 <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
-
-            <JsonValidatorPipe
-                    name="createKanaalValidator"
-                    schema="json/create-kanaal-schema.json"
-                    getInputFromSessionKey="originalMessage">
-                <Forward name="success" path="checkKanaalNameExists"/>
-                <Forward name="failure" path="buildValidationInvalidParams"/>
-            </JsonValidatorPipe>
-
-            <!-- This is a workaround that gives the entire validator error string as invalidParam instead of making an array with invalid param -->
-            <ReplacerPipe name="buildValidationInvalidParams"
-                          getInputFromSessionKey="failureReason"
-                          getInputFromFixedValue='"?{validationException}"'>
-                <Param name="validationException" sessionKey="failureReason"/>
-                <Forward name="success" path="storeInvalidParams"/>
-            </ReplacerPipe>
-
-            <PutInSessionPipe name="storeInvalidParams" sessionKey="invalidParams">
-                <Forward name="success" path="badRequestError"/>
-            </PutInSessionPipe>
 
             <SenderPipe name="checkKanaalNameExists">
                 <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"

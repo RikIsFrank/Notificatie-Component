@@ -10,8 +10,8 @@ http:
     type: json
     data: |-
       {
-          "naam": "test 2",
-          "documentatieLink": "http://example.com",
+        "naam": "test 2",  
+        "documentatieLink": "http://example.com",
           "filters": [
               "test",
               "extra filter"
