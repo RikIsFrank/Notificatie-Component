@@ -1,6 +1,6 @@
 "use strict";
 
-function decodeAndValidate(jwt) {
+function decodeAndValidate(jwt, timeout) {
     if (!jwt || jwt === "null") return JSON.stringify({ status: "401" });
     if (!jwt.startsWith("Bearer ")) return JSON.stringify({ status: "401" });
 
@@ -40,7 +40,7 @@ function decodeAndValidate(jwt) {
     let timeBetween = timestamp - claims.iat;
 
     // if (timeBetween < 0) return JSON.stringify({ status: "401" });
-    if (timeBetween > 600) return JSON.stringify({ status: "401" }); // 10 min lifespan (get this value from a .properties file)
+    if (timeBetween > parseInt(timeout)) return JSON.stringify({ status: "401" });
 
     return JSON.stringify({ status: "200", clientId: claims.client_id });
 }

@@ -20,6 +20,7 @@
             <SenderPipe name="decodeAndValidateJwt">
                 <JavascriptSender jsFileName="AuthCheck.js" jsFunctionName="decodeAndValidate"/>
                 <Param name="jwt" sessionKey="authorization"/>
+                <Param name="timeout" value="${nc.jwt.timeout:-600}"/>
             </SenderPipe>
 
             <PutInSessionPipe name="storeDecodeResult" sessionKey="decodeResult"/>
