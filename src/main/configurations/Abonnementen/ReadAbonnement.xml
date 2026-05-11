@@ -44,6 +44,7 @@
                 <Forward name="200" path="readAbonnementSender"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
@@ -70,8 +71,7 @@
                             ON f.filter_group_id = fg.id
                             WHERE abonnement.uuid = ?
                         '
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 

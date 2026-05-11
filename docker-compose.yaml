@@ -6,10 +6,12 @@ services:
     environment:
       TZ: Europe/Amsterdam
       dtap.stage: LOC
+    env_file:
+      - .env
     volumes:
       - logs:/usr/local/tomcat/logs
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -30,7 +32,7 @@ services:
       POSTGRES_USER: frank
       POSTGRES_PASSWORD: frank
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

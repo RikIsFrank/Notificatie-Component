@@ -44,6 +44,7 @@
                 <Forward name="200" path="listAbonnementSender"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
@@ -69,8 +70,7 @@
                             LEFT JOIN filter AS f
                             ON f.filter_group_id = fg.id
                         '
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
             </SenderPipe>
 
             <DataSonnetPipe

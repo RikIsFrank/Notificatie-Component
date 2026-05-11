@@ -51,6 +51,7 @@
                 <Forward name="200" path="abonnementJsonConverter"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
@@ -76,7 +77,6 @@
             <ForEachChildElementPipe name="checkKanalenNamesExists" targetElement="naam">
                 <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"
                                   queryType="SELECT"
-                                  datasourceName="jdbc/notificatiecomponent"
                                   outputFormat="XML"/>
                 <Param name="naam" xpathExpression="naam"/>
             </ForEachChildElementPipe>
@@ -175,7 +175,6 @@
                    INNER JOIN kanaal k        ON fg.kanaal_id = k.id
                    WHERE a.callback_url = ? AND k.naam = ?"
                         queryType="SELECT"
-                        datasourceName="jdbc/notificatiecomponent"
                         outputFormat="XML"/>
                 <Param name="callback_url" sessionKey="originalMessage" jsonPathExpression="$.callbackUrl"/>
                 <Param name="naam" xpathExpression="naam"/>
@@ -194,8 +193,7 @@
                 <FixedQuerySender
                         query="INSERT INTO abonnement (
                         uuid, callback_url, auth) VALUES (?, ?, ?)"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="uuid" sessionKey="uuid"/>
                 <Param name="callback_url" sessionKey="originalMessage" jsonPathExpression="$.callbackUrl"/>
                 <Param name="auth" sessionKey="originalMessage" jsonPathExpression="$.auth"/>
@@ -207,8 +205,7 @@
                         name="getCreatedAbonnementQuerySender"
                         queryType="SELECT"
                         query="SELECT id FROM abonnement WHERE uuid = ?"
-                        outputFormat="XML"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="XML"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
@@ -254,7 +251,6 @@
                 <FixedQuerySender
                         query="SELECT id FROM kanaal WHERE naam = ?"
                         queryType="SELECT"
-                        datasourceName="jdbc/notificatiecomponent"
                         outputFormat="XML"/>
                 <Param name="naam" sessionKey="kanaalItem" xpathExpression="//naam"/>
             </SenderPipe>
@@ -265,8 +261,7 @@
             <SenderPipe name="insertFilterGroup">
                 <FixedQuerySender
                         query="INSERT INTO filter_group (abonnement_id, kanaal_id) VALUES (?, ?)"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="abonnement_id" sessionKey="abonnementId" xpathExpression="//ID"/>
                 <Param name="kanaal_id"     sessionKey="kanaalId"     xpathExpression="//ID"/>
             </SenderPipe>
@@ -279,7 +274,6 @@
                                INNER JOIN kanaal k     ON fg.kanaal_id     = k.id
                                WHERE a.id = ? AND k.naam = ?"
                         queryType="SELECT"
-                        datasourceName="jdbc/notificatiecomponent"
                         outputFormat="XML"/>
                 <Param name="abonnement_id" sessionKey="abonnementId" xpathExpression="//ID"/>
                 <Param name="naam"          sessionKey="kanaalItem"   xpathExpression="//naam"/>
@@ -297,8 +291,7 @@
                                      getInputFromSessionKey="kanaalItem">
                 <FixedQuerySender
                         query='INSERT INTO filter (filter_group_id, filter_key, filter_value) VALUES (?, ?, ?)'
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="filter_group_id" sessionKey="filterGroupId" xpathExpression="//ID"/>
                 <Param name="filter_key"   xpathExpression="local-name(*)"/>
                 <Param name="filter_value" xpathExpression="string()"/>

@@ -44,6 +44,7 @@
                 <Forward name="200" path="listKanaalSender"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
@@ -53,8 +54,7 @@
                         name="listKanaalQuerySender"
                         queryType="SELECT"
                         query="SELECT uuid, naam, documentatie_link, filters FROM kanaal"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
             </SenderPipe>
 
             <DataSonnetPipe
