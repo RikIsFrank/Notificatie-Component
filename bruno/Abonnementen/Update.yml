@@ -5,13 +5,13 @@ info:
 
 http:
   method: PUT
-  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/0a000059-232e516e_19df83fe931_-7fe5"
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/0a000059-14a8daf3_19e16ee66d5_-7ff9"
   body:
     type: json
     data: |-
       {
-          "callbackUrl": "https://webhook.site/0ef19537-521a-41e4-a2c9-c3bfbf86a392",
-          "auth": "Bearer test-token-abc123",
+          "callbackUrl": "https://webhook.site/659db571-ca36-40b0-86e1-3da570d6b03f",
+          "auth": "Bearer test-token-abc1234567",
           "kanalen": [
               {
                   "filters": {

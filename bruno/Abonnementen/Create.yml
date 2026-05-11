@@ -10,15 +10,15 @@ http:
     type: json
     data: |-
       {
-          "callbackUrl": "https://webhook.site/0ef19537-521a-41e4-a2c9-c3bfbf86a392",
+          "callbackUrl": "https://webhook.site/659db571-ca36-40b0-86e1-3da570d6b03f",
           "auth": "Bearer test-token-abc123",
           "kanalen": [
               {
-                  "naam": "test 2",
                   "filters": {
                       "property1": "string",
                       "property2": "string"
-                  }
+                  },
+                "naam": "test 0"
               }
           ]
       }
