@@ -58,8 +58,8 @@ This will start:
 | File | Local | Docker | Notes |
 |---|:---:|:---:|---|
 | `frank-runner.properties` | ✅ | ❌ | Port (`tomcat.connector.port`), FF version |
-| `src/main/resources/resources.yml` | ❌ | ✅ | Frank!Framework datasource registration for PostgreSQL |
-| `.env` | ❌ | ✅ | Injected as env vars by Docker Compose (`jdbc.datasource.default`, `PORT`) |
+| `src/main/resources/resources.yml` | ❌ | ✅ | Frank!Framework datasource registration; PostgreSQL credentials use property substitution (`${postgresql.host:-localhost}` etc.) |
+| `.env` | ❌ | ✅ | Injected as env vars by Docker Compose — overrides `jdbc.datasource.default`, `PORT`, `postgresql.*` credentials, and `nc.zgw.autorisaties-api.root-url` |
 | `docker-compose.yaml` | ❌ | ✅ | Service orchestration (app, frank-flow, postgres) |
 | `Dockerfile` | ❌ | ✅ | Container build |
 | `src/main/resources/DeploymentSpecifics.properties` | ✅ | ✅ | Instance properties (`nc.api.base-url`, migrator, auth config) |
