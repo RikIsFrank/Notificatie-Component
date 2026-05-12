@@ -6,7 +6,7 @@
         <Receiver name="readKanaalReceiver">
             <ApiListener
                     name="readKanaalListener"
-                    uriPattern="/kanaal/{uuid}"
+                    uriPattern="v1/kanaal/{uuid}"
                     method="GET"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -44,6 +44,7 @@
                 <Forward name="200" path="readKanaalSender"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
@@ -53,8 +54,7 @@
                         name="readKanaalQuerySender"
                         queryType="SELECT"
                         query="SELECT uuid, naam, documentatie_link, filters FROM kanaal WHERE uuid = ?"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
@@ -65,20 +65,10 @@
                 <Forward name="else" path="readKanaalMap"/>
             </IfPipe>
 
-            <!-- add the uuid to the detail param -->
-<!--            <SenderPipe name="notFoundError">-->
-<!--                <FrankSender target="Errors/errorResponse"/>-->
-<!--                <Param name="status" value="404"/>-->
-<!--                <Param name="code" value="not_found"/>-->
-<!--                <Param name="title" value="Not found."/>-->
-<!--                <Param name="detail" sessionKey="uuid" pattern="No kanaal with uuid {uuid} found."/>-->
-<!--                <Param name="instance" sessionKey="uuid" pattern="/api/v1/kanaal/{uuid}"/>-->
-<!--                <Forward name="success" path="NotFound"/>-->
-<!--            </SenderPipe>-->
-
             <DataSonnetPipe
                     name="readKanaalMap"
                     styleSheetName="ds/kanaal-read.ds">
+                <Param name="baseUrl" value="${nc.api.base-url}/kanaal/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

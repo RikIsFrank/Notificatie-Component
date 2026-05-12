@@ -23,9 +23,6 @@ local typeUrls = {
     status: statusInt,
     detail: payload.detail,
     instance: payload.instance,
-    [if std.length(invParams) > 0 then "invalidParams"]: {
-        name: "Bad Request - Invalid Parameters",
-        code: "400",
-        reason: invParams,
-    },
+    [if std.isArray(invParams) && std.length(invParams) > 0 then "invalidParams"]: invParams,
 }
+

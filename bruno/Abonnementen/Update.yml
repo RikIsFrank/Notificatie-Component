@@ -1,0 +1,31 @@
+info:
+  name: Update
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/0a000059-14a8daf3_19e16ee66d5_-7ff9"
+  body:
+    type: json
+    data: |-
+      {
+          "callbackUrl": "https://webhook.site/659db571-ca36-40b0-86e1-3da570d6b03f",
+          "auth": "Bearer test-token-abc1234567",
+          "kanalen": [
+              {
+                  "filters": {
+                      "bronorganisatie": "000000001",
+                      "vertrouwelijkheidaanduiding": "openbaar"
+                  },
+                  "naam": "test 2"
+              }
+          ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

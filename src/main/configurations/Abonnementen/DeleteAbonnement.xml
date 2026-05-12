@@ -1,4 +1,4 @@
-﻿<Module
+<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
@@ -6,7 +6,7 @@
         <Receiver name="deleteAbonnementReceiver">
             <ApiListener
                     name="deleteAbonnementListener"
-                    uriPattern="/abonnement/{uuid}"
+                    uriPattern="v1/abonnement/{uuid}"
                     method="DELETE"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -44,6 +44,7 @@
                 <Forward name="200" path="checkAbonnementExists"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
@@ -53,8 +54,7 @@
                 <FixedQuerySender
                         queryType="SELECT"
                         query="SELECT COUNT(*) AS count FROM abonnement WHERE uuid = ?"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
@@ -72,8 +72,7 @@
             <SenderPipe name="deleteAbonnementSender">
                 <FixedQuerySender
                         query="DELETE FROM abonnement WHERE uuid = ?"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 

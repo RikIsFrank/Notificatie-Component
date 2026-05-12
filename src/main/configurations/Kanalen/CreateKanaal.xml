@@ -6,7 +6,7 @@
         <Receiver name="createKanaalReceiver">
             <ApiListener
                     name="createKanaalListener"
-                    uriPattern="/kanaal"
+                    uriPattern="v1/kanaal"
                     method="POST"
                     headerParams="Authorization"
                     consumes="JSON"
@@ -14,6 +14,12 @@
                     produces="JSON"/>
         </Receiver>
         <Pipeline>
+            <JsonInputValidator name="validateCreateKanaalInput"
+                                schema="json/create-kanaal-schema.json">
+                <Forward name="success" path="setInstance"/>
+                <Forward name="failure" path="buildValidationInvalidParams"/>
+            </JsonInputValidator>
+
             <Exits>
                 <Exit name="OK" state="SUCCESS" code="201"/>
                 <Exit name="BadRequest" state="ERROR" code="400"/>
@@ -42,37 +48,17 @@
             </SenderPipe>
 
             <SwitchPipe name="authResult">
-                <Forward name="200" path="createKanaalValidator"/>
+                <Forward name="200" path="checkKanaalNameExists"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
 
-            <JsonValidatorPipe
-                    name="createKanaalValidator"
-                    schema="json/create-kanaal-schema.json"
-                    getInputFromSessionKey="originalMessage">
-                <Forward name="success" path="checkKanaalNameExists"/>
-                <Forward name="failure" path="buildValidationInvalidParams"/>
-            </JsonValidatorPipe>
-
-            <!-- This is a workaround that gives the entire validator error string as invalidParam instead of making an array with invalid param -->
-            <ReplacerPipe name="buildValidationInvalidParams"
-                          getInputFromSessionKey="failureReason"
-                          getInputFromFixedValue='"?{validationException}"'>
-                <Param name="validationException" sessionKey="failureReason"/>
-                <Forward name="success" path="storeInvalidParams"/>
-            </ReplacerPipe>
-
-            <PutInSessionPipe name="storeInvalidParams" sessionKey="invalidParams">
-                <Forward name="success" path="badRequestError"/>
-            </PutInSessionPipe>
-
             <SenderPipe name="checkKanaalNameExists">
                 <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"
                                   queryType="SELECT"
-                                  datasourceName="jdbc/notificatiecomponent"
                                   outputFormat="JSON"/>
                 <Param name="naam" sessionKey="originalMessage" jsonPathExpression="$.naam"/>
             </SenderPipe>
@@ -91,25 +77,19 @@
                         name="createKanaalQuerySender"
                         queryType="OTHER"
                         query="INSERT INTO kanaal (uuid, naam, documentatie_link, filters) VALUES (?, ?, ?, ?)"
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
                 <Param name="naam" sessionKey="originalMessage" jsonPathExpression="$.naam"/>
                 <Param name="documentatie_link" sessionKey="originalMessage" jsonPathExpression="$.documentatieLink"/>
                 <Param name="filters" sessionKey="originalMessage" jsonPathExpression="$.filters"/>
             </SenderPipe>
 
-            <ReplacerPipe name="buildCreatedKanaalResponse"
-                          getInputFromSessionKey="originalMessage"
-                          getInputFromFixedValue='{"originalMessage":?{originalMessage},"uuid":"?{uuid}"}'>
-                <Param name="originalMessage" sessionKey="originalMessage"/>
-                <Param name="uuid" sessionKey="uuid"/>
-                <Forward name="success" path="createKanaalMap"/>
-            </ReplacerPipe>
-
             <DataSonnetPipe
                     name="createKanaalMap"
-                    styleSheetName="ds/kanaal-create.ds">
+                    styleSheetName="ds/kanaal-create.ds"
+                    getInputFromSessionKey="originalMessage">
+                <Param name="uuid" sessionKey="uuid"/>
+                <Param name="baseUrl" value="${nc.api.base-url}/kanaal/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

@@ -1,9 +1,9 @@
-﻿<Module
+<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
-    <Adapter name="errorResponse">
-        <Receiver name="errorResponseReceiver">
+    <Adapter name="buildResponse">
+        <Receiver name="buildResponseReceiver">
             <FrankListener/>
         </Receiver>
         <Pipeline>
@@ -27,10 +27,10 @@
                 <Param name="detail" sessionKey="detail"/>
                 <Param name="instance" sessionKey="instance"/>
                 <Param name="invalidParams" sessionKey="invalidParams"/>
-                <Forward name="success" path="buildErrorResponse"/>
+                <Forward name="success" path="buildResponse"/>
             </ReplacerPipe>
 
-            <DataSonnetPipe name="buildErrorResponse" styleSheetName="ds/error-response.ds">
+            <DataSonnetPipe name="buildResponse" styleSheetName="ds/build-response.ds">
                 <Forward name="success" path="success"/>
             </DataSonnetPipe>
         </Pipeline>

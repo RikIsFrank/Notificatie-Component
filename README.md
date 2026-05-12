@@ -53,6 +53,20 @@ This will start:
 - **Frank Flow (UI)**: Available at `http://localhost:8090`
 - **PostgreSQL Database**: Running on port 5432
 
+## Configuration Files
+
+| File | Local | Docker | Notes |
+|---|:---:|:---:|---|
+| `frank-runner.properties` | ✅ | ❌ | Port (`tomcat.connector.port`), FF version |
+| `src/main/resources/resources.yml` | ❌ | ✅ | Frank!Framework datasource registration; PostgreSQL credentials use property substitution (`${postgresql.host:-localhost}` etc.) |
+| `.env` | ❌ | ✅ | Injected as env vars by Docker Compose — overrides `jdbc.datasource.default`, `PORT`, `postgresql.*` credentials, and `nc.zgw.autorisaties-api.root-url` |
+| `docker-compose.yaml` | ❌ | ✅ | Service orchestration (app, frank-flow, postgres) |
+| `Dockerfile` | ❌ | ✅ | Container build |
+| `src/main/resources/DeploymentSpecifics.properties` | ✅ | ✅ | Instance properties (`nc.api.base-url`, migrator, auth config) |
+| `src/main/resources/credentialprovider.properties` | ✅ | ✅ | Points to the credentials file |
+| `src/main/secrets/credentials.properties` | ✅ | ✅ | JWT secrets for Open Zaak — **gitignored**, create manually |
+| `src/main/configurations/**` | ✅ | ✅ | All Frank!Framework pipeline logic |
+
 ## Support
 
 No

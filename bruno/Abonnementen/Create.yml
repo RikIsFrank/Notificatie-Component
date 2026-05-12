@@ -1,0 +1,31 @@
+info:
+  name: Create
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement"
+  body:
+    type: json
+    data: |-
+      {
+          "callbackUrl": "https://webhook.site/659db571-ca36-40b0-86e1-3da570d6b03f",
+          "auth": "Bearer test-token-abc123",
+          "kanalen": [
+              {
+                  "filters": {
+                      "property1": "string",
+                      "property2": "string"
+                  },
+                "naam": "test 0"
+              }
+          ]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

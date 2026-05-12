@@ -1,4 +1,4 @@
-﻿<Module
+<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
@@ -6,7 +6,7 @@
         <Receiver name="readAbonnementReceiver">
             <ApiListener
                     name="readAbonnementListener"
-                    uriPattern="/abonnement/{uuid}"
+                    uriPattern="v1/abonnement/{uuid}"
                     method="GET"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -44,6 +44,7 @@
                 <Forward name="200" path="readAbonnementSender"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
@@ -70,8 +71,7 @@
                             ON f.filter_group_id = fg.id
                             WHERE abonnement.uuid = ?
                         '
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
@@ -85,6 +85,7 @@
             <DataSonnetPipe
                     name="readAbonnementMap"
                     styleSheetName="ds/abonnement-read.ds">
+                <Param name="baseUrl" value="${nc.api.base-url}/abonnement/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>

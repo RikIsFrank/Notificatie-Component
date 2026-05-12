@@ -1,4 +1,4 @@
-﻿<Module
+<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
@@ -6,7 +6,7 @@
         <Receiver name="createAbonnementReceiver">
             <ApiListener
                     name="createAbonnementListener"
-                    uriPattern="/abonnement"
+                    uriPattern="v1/abonnement"
                     method="POST"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -51,21 +51,11 @@
                 <Forward name="200" path="abonnementJsonConverter"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
 
-            <ReplacerPipe name="buildValidationInvalidParams"
-                          getInputFromSessionKey="failureReason"
-                          getInputFromFixedValue='"?{validationException}"'>
-                <Param name="validationException" sessionKey="failureReason"/>
-                <Forward name="success" path="storeInvalidParams"/>
-            </ReplacerPipe>
-
-            <PutInSessionPipe name="storeInvalidParams" sessionKey="invalidParams">
-                <Forward name="success" path="badRequestError"/>
-            </PutInSessionPipe>
-            
             <JsonPipe name="abonnementJsonConverter"
                       getInputFromSessionKey="originalMessage"
                       storeResultInSessionKey="originalMessageXml">
@@ -76,19 +66,21 @@
             <ForEachChildElementPipe name="checkKanalenNamesExists" targetElement="naam">
                 <FixedQuerySender query="SELECT COUNT(*) AS count FROM kanaal WHERE naam = ?"
                                   queryType="SELECT"
-                                  datasourceName="jdbc/notificatiecomponent"
                                   outputFormat="XML"/>
                 <Param name="naam" xpathExpression="naam"/>
             </ForEachChildElementPipe>
 
-            <!-- check if value is 0 somewhere (kanaal doesnt exist) -->
             <SwitchPipe name="checkKanalenNamesExistsCheck"
                         xpathExpression="//row/COUNT=0">
-
-                        <Forward name="false" path="checkWebhookExists"/>
-                        <Forward name="true" path="badRequestError"/>
-                        <!-- forward this to another pipe to extract wanted values and store those in invalidParams -->
+                <Forward name="false" path="checkWebhookExists"/>
+                <Forward name="true" path="setKanalenNotFoundParams"/>
             </SwitchPipe>
+
+            <PutInSessionPipe name="setKanalenNotFoundParams"
+                              value='[{"name": "kanalen", "code": "does_not_exist", "reason": "One or more kanaal names do not exist."}]'
+                              sessionKey="invalidParams">
+                <Forward name="success" path="badRequestError"/>
+            </PutInSessionPipe>
 
             <SenderPipe name="checkWebhookExists"
                         getInputFromFixedValue='{
@@ -120,50 +112,56 @@
                 <Forward name="208" path="checkDuplicateSubscription"/>
                 <Forward name="226" path="checkDuplicateSubscription"/>
 
-                <Forward name="400" path="badRequestError"/>
-                <Forward name="401" path="badRequestError"/>
-                <Forward name="402" path="badRequestError"/>
-                <Forward name="403" path="badRequestError"/>
-                <Forward name="404" path="badRequestError"/>
-                <Forward name="405" path="badRequestError"/>
-                <Forward name="406" path="badRequestError"/>
-                <Forward name="407" path="badRequestError"/>
-                <Forward name="408" path="badRequestError"/>
-                <Forward name="409" path="badRequestError"/>
-                <Forward name="410" path="badRequestError"/>
-                <Forward name="411" path="badRequestError"/>
-                <Forward name="412" path="badRequestError"/>
-                <Forward name="413" path="badRequestError"/>
-                <Forward name="414" path="badRequestError"/>
-                <Forward name="415" path="badRequestError"/>
-                <Forward name="416" path="badRequestError"/>
-                <Forward name="417" path="badRequestError"/>
-                <Forward name="418" path="badRequestError"/>
-                <Forward name="421" path="badRequestError"/>
-                <Forward name="422" path="badRequestError"/>
-                <Forward name="423" path="badRequestError"/>
-                <Forward name="424" path="badRequestError"/>
-                <Forward name="425" path="badRequestError"/>
-                <Forward name="426" path="badRequestError"/>
-                <Forward name="428" path="badRequestError"/>
-                <Forward name="429" path="badRequestError"/>
-                <Forward name="431" path="badRequestError"/>
-                <Forward name="451" path="badRequestError"/>
+                <Forward name="400" path="setCallbackUrlInvalidParams"/>
+                <Forward name="401" path="setCallbackUrlInvalidParams"/>
+                <Forward name="402" path="setCallbackUrlInvalidParams"/>
+                <Forward name="403" path="setCallbackUrlInvalidParams"/>
+                <Forward name="404" path="setCallbackUrlInvalidParams"/>
+                <Forward name="405" path="setCallbackUrlInvalidParams"/>
+                <Forward name="406" path="setCallbackUrlInvalidParams"/>
+                <Forward name="407" path="setCallbackUrlInvalidParams"/>
+                <Forward name="408" path="setCallbackUrlInvalidParams"/>
+                <Forward name="409" path="setCallbackUrlInvalidParams"/>
+                <Forward name="410" path="setCallbackUrlInvalidParams"/>
+                <Forward name="411" path="setCallbackUrlInvalidParams"/>
+                <Forward name="412" path="setCallbackUrlInvalidParams"/>
+                <Forward name="413" path="setCallbackUrlInvalidParams"/>
+                <Forward name="414" path="setCallbackUrlInvalidParams"/>
+                <Forward name="415" path="setCallbackUrlInvalidParams"/>
+                <Forward name="416" path="setCallbackUrlInvalidParams"/>
+                <Forward name="417" path="setCallbackUrlInvalidParams"/>
+                <Forward name="418" path="setCallbackUrlInvalidParams"/>
+                <Forward name="421" path="setCallbackUrlInvalidParams"/>
+                <Forward name="422" path="setCallbackUrlInvalidParams"/>
+                <Forward name="423" path="setCallbackUrlInvalidParams"/>
+                <Forward name="424" path="setCallbackUrlInvalidParams"/>
+                <Forward name="425" path="setCallbackUrlInvalidParams"/>
+                <Forward name="426" path="setCallbackUrlInvalidParams"/>
+                <Forward name="428" path="setCallbackUrlInvalidParams"/>
+                <Forward name="429" path="setCallbackUrlInvalidParams"/>
+                <Forward name="431" path="setCallbackUrlInvalidParams"/>
+                <Forward name="451" path="setCallbackUrlInvalidParams"/>
 
-                <Forward name="500" path="badRequestError"/>
-                <Forward name="501" path="badRequestError"/>
-                <Forward name="502" path="badRequestError"/>
-                <Forward name="503" path="badRequestError"/>
-                <Forward name="504" path="badRequestError"/>
-                <Forward name="505" path="badRequestError"/>
-                <Forward name="506" path="badRequestError"/>
-                <Forward name="507" path="badRequestError"/>
-                <Forward name="508" path="badRequestError"/>
-                <Forward name="510" path="badRequestError"/>
-                <Forward name="511" path="badRequestError"/>
+                <Forward name="500" path="setCallbackUrlInvalidParams"/>
+                <Forward name="501" path="setCallbackUrlInvalidParams"/>
+                <Forward name="502" path="setCallbackUrlInvalidParams"/>
+                <Forward name="503" path="setCallbackUrlInvalidParams"/>
+                <Forward name="504" path="setCallbackUrlInvalidParams"/>
+                <Forward name="505" path="setCallbackUrlInvalidParams"/>
+                <Forward name="506" path="setCallbackUrlInvalidParams"/>
+                <Forward name="507" path="setCallbackUrlInvalidParams"/>
+                <Forward name="508" path="setCallbackUrlInvalidParams"/>
+                <Forward name="510" path="setCallbackUrlInvalidParams"/>
+                <Forward name="511" path="setCallbackUrlInvalidParams"/>
 
                 <!-- add something for exceptions (host not allowed/recognized) -->
             </SenderPipe>
+
+            <PutInSessionPipe name="setCallbackUrlInvalidParams"
+                              value='[{"name": "callbackUrl", "code": "invalid", "reason": "The callback URL did not respond with a success status."}]'
+                              sessionKey="invalidParams">
+                <Forward name="success" path="badRequestError"/>
+            </PutInSessionPipe>
 
             <!-- check if abonnement with same callback url and kanaal already exists (foreach) -->
             <ForEachChildElementPipe name="checkDuplicateSubscription"
@@ -175,7 +173,6 @@
                    INNER JOIN kanaal k        ON fg.kanaal_id = k.id
                    WHERE a.callback_url = ? AND k.naam = ?"
                         queryType="SELECT"
-                        datasourceName="jdbc/notificatiecomponent"
                         outputFormat="XML"/>
                 <Param name="callback_url" sessionKey="originalMessage" jsonPathExpression="$.callbackUrl"/>
                 <Param name="naam" xpathExpression="naam"/>
@@ -194,8 +191,7 @@
                 <FixedQuerySender
                         query="INSERT INTO abonnement (
                         uuid, callback_url, auth) VALUES (?, ?, ?)"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="uuid" sessionKey="uuid"/>
                 <Param name="callback_url" sessionKey="originalMessage" jsonPathExpression="$.callbackUrl"/>
                 <Param name="auth" sessionKey="originalMessage" jsonPathExpression="$.auth"/>
@@ -207,8 +203,7 @@
                         name="getCreatedAbonnementQuerySender"
                         queryType="SELECT"
                         query="SELECT id FROM abonnement WHERE uuid = ?"
-                        outputFormat="XML"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="XML"/>
                 <Param name="uuid" sessionKey="uuid"/>
             </SenderPipe>
 
@@ -223,19 +218,13 @@
                 <FrankSender target="insertKanaalWithFilters"/>
                 <Param name="abonnementId" sessionKey="abonnementId"/>
             </ForEachChildElementPipe>
-            
-            <ReplacerPipe name="buildAbonnementResponse"
-                          getInputFromSessionKey="originalMessage"
-                          getInputFromFixedValue='{"originalMessage":?{originalMessage},"uuid":"?{uuid}"}'>
-                <Param name="originalMessage" sessionKey="originalMessage"/>
-                <Param name="uuid" sessionKey="uuid"/>
-                <Forward name="success" path="createAbonnementMap"/>
-            </ReplacerPipe>
 
             <DataSonnetPipe
                     name="createAbonnementMap"
-                    styleSheetName="ds/abonnement-create.ds">
+                    styleSheetName="ds/abonnement-create.ds"
+                    getInputFromSessionKey="originalMessage">
                 <Param name="uuid" sessionKey="uuid"/>
+                <Param name="baseUrl" value="${nc.api.base-url}/abonnement/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>
@@ -260,7 +249,6 @@
                 <FixedQuerySender
                         query="SELECT id FROM kanaal WHERE naam = ?"
                         queryType="SELECT"
-                        datasourceName="jdbc/notificatiecomponent"
                         outputFormat="XML"/>
                 <Param name="naam" sessionKey="kanaalItem" xpathExpression="//naam"/>
             </SenderPipe>
@@ -271,8 +259,7 @@
             <SenderPipe name="insertFilterGroup">
                 <FixedQuerySender
                         query="INSERT INTO filter_group (abonnement_id, kanaal_id) VALUES (?, ?)"
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="abonnement_id" sessionKey="abonnementId" xpathExpression="//ID"/>
                 <Param name="kanaal_id"     sessionKey="kanaalId"     xpathExpression="//ID"/>
             </SenderPipe>
@@ -285,7 +272,6 @@
                                INNER JOIN kanaal k     ON fg.kanaal_id     = k.id
                                WHERE a.id = ? AND k.naam = ?"
                         queryType="SELECT"
-                        datasourceName="jdbc/notificatiecomponent"
                         outputFormat="XML"/>
                 <Param name="abonnement_id" sessionKey="abonnementId" xpathExpression="//ID"/>
                 <Param name="naam"          sessionKey="kanaalItem"   xpathExpression="//naam"/>
@@ -303,8 +289,7 @@
                                      getInputFromSessionKey="kanaalItem">
                 <FixedQuerySender
                         query='INSERT INTO filter (filter_group_id, filter_key, filter_value) VALUES (?, ?, ?)'
-                        queryType="OTHER"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        queryType="OTHER"/>
                 <Param name="filter_group_id" sessionKey="filterGroupId" xpathExpression="//ID"/>
                 <Param name="filter_key"   xpathExpression="local-name(*)"/>
                 <Param name="filter_value" xpathExpression="string()"/>

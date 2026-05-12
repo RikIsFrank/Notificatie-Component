@@ -1,0 +1,21 @@
+info:
+  name: Partial update
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/0a000059-232e516e_19df83fe931_-7fe5"
+  body:
+    type: json
+    data: |-
+      {
+          "auth": "Bearer test-token-abc12345"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

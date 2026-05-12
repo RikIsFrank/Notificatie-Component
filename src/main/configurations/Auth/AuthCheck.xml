@@ -1,4 +1,4 @@
-﻿<Module
+<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd">
 
@@ -12,13 +12,15 @@
 
             <Exits>
                 <Exit name="success" state="SUCCESS" code="200"/>
-                <Exit name="unauthorized" state="ERROR" code="401"/>
-                <Exit name="forbidden" state="ERROR" code="403"/>
+                <Exit name="unauthorized" state="SUCCESS" code="401"/>
+                <Exit name="forbidden" state="SUCCESS" code="403"/>
+                <Exit name="exception" state="ERROR" code="500"/>
             </Exits>
 
             <SenderPipe name="decodeAndValidateJwt">
                 <JavascriptSender jsFileName="AuthCheck.js" jsFunctionName="decodeAndValidate"/>
                 <Param name="jwt" sessionKey="authorization"/>
+                <Param name="timeout" value="${nc.jwt.timeout:-600}"/>
             </SenderPipe>
 
             <PutInSessionPipe name="storeDecodeResult" sessionKey="decodeResult"/>
@@ -44,7 +46,6 @@
                         name="lookupSecretQuery"
                         queryType="SELECT"
                         query="SELECT secret FROM jwt_secret WHERE client_id = ?"
-                        datasourceName="jdbc/notificatiecomponent"
                         outputFormat="JSON">
                     <Param name="1" sessionKey="clientId"/>
                 </FixedQuerySender>
@@ -100,6 +101,11 @@
                     <Param name="Accept" value="application/json" />
                     <Param name="clientId" sessionKey="clientId"/>
                 </HttpSender>
+                <Forward name="exception" path="exception"/>
+                <Forward name="timeout" path="exception"/>
+                <Forward name="illegalResult" path="exception"/>
+                <Forward name="presumedTimeout" path="exception"/>
+                <Forward name="interrupt" path="exception"/>
             </SenderPipe>
 
             <PutInSessionPipe name="storeAcResponse" sessionKey="acResponse"/>
@@ -119,7 +125,7 @@
 
             <SwitchPipe name="scopeResult">
                 <Forward name="200" path="clearResponse"/>
-                <Forward name="401" path="failClearResponse"/>
+                <Forward name="403" path="failForbiddenResponse"/>
             </SwitchPipe>
 
             <!-- Need a better / cleaner solution for this -->
@@ -129,6 +135,10 @@
 
             <EchoPipe name="failClearResponse" getInputFromFixedValue="401">
                 <Forward name="success" path="unauthorized"/>
+            </EchoPipe>
+
+            <EchoPipe name="failForbiddenResponse" getInputFromFixedValue="403">
+                <Forward name="success" path="forbidden"/>
             </EchoPipe>
 
         </Pipeline>

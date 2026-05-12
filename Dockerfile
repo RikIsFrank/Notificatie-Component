@@ -4,8 +4,4 @@
 COPY --chown=tomcat lib/server/* /usr/local/tomcat/lib/
 
 # Copy Frank!
-COPY --chown=tomcat src/main/configurations/ /opt/frank/configurations/
-COPY --chown=tomcat src/main/resources/ /opt/frank/resources/
-COPY --chown=tomcat src/main/secrets/ /opt/frank/secrets/
-
-COPY --chown=tomcat src/main/webapp/META-INF/context.xml /usr/local/tomcat/conf/Catalina/localhost/ROOT.xml
+COPY --chown=tomcat src/main/ /opt/frank/

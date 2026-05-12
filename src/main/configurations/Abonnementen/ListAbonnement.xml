@@ -1,4 +1,4 @@
-﻿<Module
+<Module
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../FrankConfig.xsd"
 >
@@ -6,7 +6,7 @@
         <Receiver name="listAbonnementReceiver">
             <ApiListener
                     name="listAbonnementListener"
-                    uriPattern="/abonnement"
+                    uriPattern="v1/abonnement"
                     method="GET"
                     headerParams="Authorization"
                     allowAllParams="false"
@@ -44,10 +44,10 @@
                 <Forward name="200" path="listAbonnementSender"/>
                 <Forward name="401" path="unauthorizedError"/>
                 <Forward name="403" path="forbiddenError"/>
+                <Forward name="500" path="exception"/>
             </SwitchPipe>
 
             <Include ref="CommonResponses.xml"/>
-<!--            <Include ref="../Errors/CommonResponses.xml"/>-->
 
             <SenderPipe name="listAbonnementSender">
                 <FixedQuerySender
@@ -70,13 +70,13 @@
                             LEFT JOIN filter AS f
                             ON f.filter_group_id = fg.id
                         '
-                        outputFormat="JSON"
-                        datasourceName="jdbc/notificatiecomponent"/>
+                        outputFormat="JSON"/>
             </SenderPipe>
 
             <DataSonnetPipe
                     name="listAbonnementMap"
                     styleSheetName="ds/abonnement-list.ds">
+                <Param name="baseUrl" value="${nc.api.base-url}/abonnement/"/>
                 <Forward name="success" path="OK"/>
             </DataSonnetPipe>
         </Pipeline>
