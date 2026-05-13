@@ -169,6 +169,9 @@
                 <Forward name="511" path="setCallbackUrlInvalidParams"/>
 
                 <!-- add something for exceptions (host not allowed/recognized) -->
+
+                <!-- Fallback for when HttpSender is replaced by IbisJavaSender in stub4testtool mode -->
+                <Forward name="success" path="checkDuplicateSubscription"/>
             </SenderPipe>
 
             <PutInSessionPipe name="setCallbackUrlInvalidParams"
