@@ -6,3 +6,7 @@ variables:
     value: v1
   - name: JWT_TOKEN
     value: "{{process.env.JWT_TOKEN}}"
+  - name: WEBHOOK_URL
+    value: https://webhook.site/659db571-ca36-40b0-86e1-3da570d6b03f
+  - name: kanaal_naam
+    value: new-test-kanaal-2

@@ -10,14 +10,24 @@ http:
     type: json
     data: |-
       {
-        "naam": "test 2",  
-        "documentatieLink": "http://example.com",
-          "filters": [
-              "test",
-              "extra filter"
-          ]
+        "naam": "{{kanaal_naam}}",
+        "documentatieLink": "http://example.com/docs",
+        "filters": ["bronorganisatie", "zaaktype"]
       }
   auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.status === 201) {
+          const uuid = res.body.url.split('/').pop();
+          bru.setVar("kanaal_uuid", uuid);
+        }
 
 settings:
   encodeUrl: true

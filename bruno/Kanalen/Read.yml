@@ -5,8 +5,14 @@ info:
 
 http:
   method: GET
-  url: "{{ROOT_URI}}/api/{{API_VERSION}}/kanaal/0a000059-232e516e_19df83fe931_-7fef"
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/kanaal/{{kanaal_uuid}}"
   auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
 
 settings:
   encodeUrl: true

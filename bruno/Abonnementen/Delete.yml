@@ -5,8 +5,14 @@ info:
 
 http:
   method: DELETE
-  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/0a000059--6e4565a_19df82be0f1_-7fe0"
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/{{abonnement_uuid}}"
   auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "204"
 
 settings:
   encodeUrl: true

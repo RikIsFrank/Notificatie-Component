@@ -5,8 +5,14 @@ info:
 
 http:
   method: GET
-  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/0a000059-232e516e_19df83fe931_-7fe5"
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/{{abonnement_uuid}}"
   auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
 
 settings:
   encodeUrl: true

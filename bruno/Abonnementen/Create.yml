@@ -10,19 +10,29 @@ http:
     type: json
     data: |-
       {
-          "callbackUrl": "https://webhook.site/659db571-ca36-40b0-86e1-3da570d6b03f",
-          "auth": "Bearer test-token-abc123",
-          "kanalen": [
-              {
-                  "filters": {
-                      "property1": "string",
-                      "property2": "string"
-                  },
-                "naam": "test 0"
-              }
-          ]
+        "callbackUrl": "{{WEBHOOK_URL}}",
+        "auth": "Bearer test-token-runner",
+        "kanalen": [
+          {
+            "naam": "{{kanaal_naam}}",
+            "filters": {}
+          }
+        ]
       }
   auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.status === 201) {
+          const uuid = res.body.url.split('/').pop();
+          bru.setVar("abonnement_uuid", uuid);
+        }
 
 settings:
   encodeUrl: true

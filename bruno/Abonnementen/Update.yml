@@ -5,24 +5,29 @@ info:
 
 http:
   method: PUT
-  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/0a000059-14a8daf3_19e16ee66d5_-7ff9"
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/{{abonnement_uuid}}"
   body:
     type: json
     data: |-
       {
-          "callbackUrl": "https://webhook.site/659db571-ca36-40b0-86e1-3da570d6b03f",
-          "auth": "Bearer test-token-abc1234567",
-          "kanalen": [
-              {
-                  "filters": {
-                      "bronorganisatie": "000000001",
-                      "vertrouwelijkheidaanduiding": "openbaar"
-                  },
-                  "naam": "test 2"
-              }
-          ]
+        "callbackUrl": "{{WEBHOOK_URL}}",
+        "auth": "Bearer test-token-runner-updated",
+        "kanalen": [
+          {
+            "naam": "{{kanaal_naam}}",
+            "filters": {
+              "bronorganisatie": "000000001"
+            }
+          }
+        ]
       }
   auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
 
 settings:
   encodeUrl: true
