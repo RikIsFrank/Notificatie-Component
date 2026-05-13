@@ -5,14 +5,20 @@ info:
 
 http:
   method: PATCH
-  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/0a000059-232e516e_19df83fe931_-7fe5"
+  url: "{{ROOT_URI}}/api/{{API_VERSION}}/abonnement/{{abonnement_uuid}}"
   body:
     type: json
     data: |-
       {
-          "auth": "Bearer test-token-abc12345"
+        "auth": "Bearer test-token-runner-patched"
       }
   auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
 
 settings:
   encodeUrl: true
