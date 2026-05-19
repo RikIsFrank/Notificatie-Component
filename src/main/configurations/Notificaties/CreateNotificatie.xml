@@ -113,18 +113,27 @@
 
             <SenderPipe name="getWebhookUrls">
                 <FixedQuerySender query="SELECT
-                                            abonnement.id,
-                                            abonnement.uuid,
-                                            abonnement.callback_url,
-                                            abonnement.auth
-                                        FROM abonnement
-                                        LEFT JOIN filter_group as fg
-                                        on fg.abonnement_id = abonnement.id
+                                            a.id,
+                                            a.uuid,
+                                            a.callback_url,
+                                            a.auth,
+                                            f.filter_key,
+                                            f.filter_value
+                                        FROM abonnement a
+                                        INNER JOIN filter_group fg ON fg.abonnement_id = a.id
+                                        LEFT JOIN filter f ON f.filter_group_id = fg.id
                                         WHERE fg.kanaal_id = ?"
                                   queryType="SELECT"
-                                  outputFormat="XML"/>
+                                  outputFormat="JSON"/>
                 <Param name="kanaal_id" sessionKey="kanaalId"/>
             </SenderPipe>
+
+            <DataSonnetPipe name="filterSubscribers"
+                            styleSheetName="ds/filter-subscribers.ds">
+                <Param name="notification" sessionKey="originalMessage"/>
+            </DataSonnetPipe>
+
+            <JsonPipe name="convertToXml"/>
 
             <ForEachChildElementPipe name="sendToWebhooks" targetElement="row">
                 <MessageStoreSender
