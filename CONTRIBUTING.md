@@ -12,6 +12,30 @@ Set up your local development environment by following the steps in [README.md](
 - Use descriptive branch names `42-add-some-feature`
   - Preferably create branches from a GitHub issue, they will automaticly be prefixed with the issue number
 
+## Testing
+
+The project has two layers of testing: Larva integration tests and Bruno API tests.
+
+### Larva (integration tests)
+
+Larva is the Frank!Framework's built-in test tool. Tests live in `src/test/testtool/` and are organised by module (e.g. `Notificaties/`, `Kanalen/`).
+
+**Running tests**
+
+1. Start the application with Frank!Runner (`.\restart.bat` / `./restart.sh`)
+2. Open the Frank!Console at `http://localhost:8080`
+3. Navigate to **Testing → Larva**
+4. Select the scenario folder and click **Run**
+
+Each scenario file (e.g. `scenario01.properties`) describes the steps in plain properties syntax. A `common.properties` file in the same folder defines shared adapter and stub registrations.
+
+**Writing new tests**
+
+- Add `scenarioNN.properties` and a matching `scenarioNN/` folder for supporting files (`request.json`, `response.json`, fixture files, etc.)
+- Register any new fixture adapters or stubs in `common.properties`
+- Fixture adapters (in `src/main/configurations/Database/`) seed the H2 database into a known state before each scenario
+- Keep scenarios independent — always clean and reseed state in steps 1–2
+
 ## Making Changes
 
 - Keep pull requests focused — one feature or fix per PR

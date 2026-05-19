@@ -67,6 +67,10 @@ This will start:
 | `src/main/secrets/credentials.properties` | ✅ | ✅ | JWT secrets for Open Zaak — **gitignored**, create manually |
 | `src/main/configurations/**` | ✅ | ✅ | All Frank!Framework pipeline logic |
 
+## Testing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on running the Larva integration tests.
+
 ## Support
 
 No
