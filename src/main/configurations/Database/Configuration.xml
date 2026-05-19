@@ -1,5 +1,4 @@
 ﻿<Configuration name="Database">
-    <Include ref="DatabaseInputTest.xml"/>
     <Include ref="KanaalFixtures.xml"/>
     <Include ref="AbonnementFixtures.xml"/>
 </Configuration>
