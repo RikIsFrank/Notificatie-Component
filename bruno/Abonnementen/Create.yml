@@ -15,17 +15,15 @@ http:
         "kanalen": [
           {
             "naam": "{{kanaal_naam}}",
-            "filters": {}
+            "filters": {
+              "bronorganisatie": "000000001"
+            }
           }
         ]
       }
   auth: inherit
 
 runtime:
-  assertions:
-    - expression: res.status
-      operator: eq
-      value: "201"
   scripts:
     - type: after-response
       code: |-
@@ -33,6 +31,10 @@ runtime:
           const uuid = res.body.url.split('/').pop();
           bru.setVar("abonnement_uuid", uuid);
         }
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
 
 settings:
   encodeUrl: true

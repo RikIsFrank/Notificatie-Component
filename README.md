@@ -38,7 +38,9 @@ From the project root in the terminal run:
 ./restart.sh
 ```
 
-The application will be available at `http://localhost:8080`
+The application will be available at:
+- HTTP: `http://localhost:8080` (redirects to HTTPS)
+- HTTPS: `https://localhost` (self-signed certificate — accept the browser warning on first visit)
 
 ### Docker Deployment
 
@@ -51,7 +53,7 @@ docker-compose up
 This will start:
 - **Frank Application**: Available at `http://localhost:8080`
 - **Frank Flow (UI)**: Available at `http://localhost:8090`
-- **PostgreSQL Database**: Running on port 5432
+- **PostgreSQL Database**: Exposed on host port `5433` (internal: 5432)
 
 ## Configuration Files
 
@@ -59,7 +61,7 @@ This will start:
 |---|:---:|:---:|---|
 | `frank-runner.properties` | ✅ | ❌ | Port (`tomcat.connector.port`), FF version |
 | `src/main/resources/resources.yml` | ❌ | ✅ | Frank!Framework datasource registration; PostgreSQL credentials use property substitution (`${postgresql.host:-localhost}` etc.) |
-| `.env` | ❌ | ✅ | Injected as env vars by Docker Compose — overrides `jdbc.datasource.default`, `PORT`, `postgresql.*` credentials, and `nc.zgw.autorisaties-api.root-url` |
+| `.env` | ❌ | ✅ | Injected as env vars by Docker Compose — overrides `jdbc.datasource.default`, `PORT`, `nc.api.base-url`, `postgresql.*` credentials, and `nc.zgw.autorisaties-api.root-url` |
 | `docker-compose.yaml` | ❌ | ✅ | Service orchestration (app, frank-flow, postgres) |
 | `Dockerfile` | ❌ | ✅ | Container build |
 | `src/main/resources/DeploymentSpecifics.properties` | ✅ | ✅ | Instance properties (`nc.api.base-url`, migrator, auth config) |

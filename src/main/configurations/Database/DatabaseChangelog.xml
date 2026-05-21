@@ -6,17 +6,8 @@
            http://www.liquibase.org/xml/ns/dbchangelog
            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
 
-    <!-- 0. TEST -->
-    <changeSet id="0-create-test" author="wearefrank">
-        <createTable tableName="test">
-            <column name="value" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-
     <!-- 1. KANAAL -->
-    <changeSet id="1-create-kanaal" author="wearefrank">
+    <changeSet id="1-create-kanaal" author="Rik">
         <createTable tableName="kanaal">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
@@ -31,11 +22,15 @@
             <column name="filters" type="TEXT" defaultValue="[]"> <!-- Type should be TEXT[] but H2 doesn't support it -->
                 <constraints nullable="false"/>
             </column>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
     <!-- 2. ABONNEMENT -->
-    <changeSet id="2-create-abonnement" author="wearefrank">
+    <changeSet id="2-create-abonnement" author="Rik">
         <createTable tableName="abonnement">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
@@ -49,11 +44,15 @@
             <column name="auth" type="VARCHAR(1000)">
                 <constraints nullable="false"/>
             </column>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
     <!-- 3. FILTER_GROUP -->
-    <changeSet id="3-create-filter-group" author="wearefrank">
+    <changeSet id="3-create-filter-group" author="Rik">
         <createTable tableName="filter_group">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
@@ -80,7 +79,7 @@
     </changeSet>
 
     <!-- 4. FILTER -->
-    <changeSet id="4-create-filter" author="wearefrank">
+    <changeSet id="4-create-filter" author="Rik">
         <createTable tableName="filter">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
@@ -106,7 +105,7 @@
     </changeSet>
 
     <!-- 5. NOTIFICATIE -->
-    <changeSet id="5-create-notificatie" author="wearefrank">
+    <changeSet id="5-create-notificatie" author="Rik">
         <createTable tableName="notificatie">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
@@ -121,11 +120,15 @@
             <column name="forwarded_msg" type="JSON">
                 <constraints nullable="false"/>
             </column>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
     <!-- 6. NOTIFICATIE_RESPONSE -->
-    <changeSet id="6-create-notificatie-response" author="wearefrank">
+    <changeSet id="6-create-notificatie-response" author="Rik">
         <createTable tableName="notificatie_response">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
@@ -151,11 +154,15 @@
             <column name="exception" type="VARCHAR(1000)" defaultValue="">
                 <constraints nullable="false"/>
             </column>
+
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="NOW()">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
     <!-- 7. JWT -->
-    <changeSet id="7-create-jwt-secret" author="wearefrank">
+    <changeSet id="7-create-jwt-secret" author="Rik">
         <createTable tableName="jwt_secret">
             <column name="id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
