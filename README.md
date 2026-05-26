@@ -52,7 +52,7 @@ docker-compose up
 
 This will start:
 - **Frank Application**: Available at `http://localhost:8080`
-- **Frank Flow (UI)**: Available at `http://localhost:8090`
+- **Frank Flow (UI)**: Available at `http://localhost:8080/frank-flow`
 - **PostgreSQL Database**: Exposed on host port `5433` (internal: 5432)
 
 ## Configuration Files

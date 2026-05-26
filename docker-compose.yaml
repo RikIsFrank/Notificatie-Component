@@ -16,15 +16,6 @@ services:
       db:
         condition: service_healthy
 
-  frank-flow:
-    image: frankframework/frank-flow:latest
-    environment:
-      configurations.directory: /opt/frank/configurations
-    volumes:
-      - ./src/main/:/opt/frank/:rw
-    ports:
-      - "8090:8090"
-
   db:
     image: postgres:15
     environment:
