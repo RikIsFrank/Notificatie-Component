@@ -39,8 +39,9 @@ From the project root in the terminal run:
 ```
 
 The application will be available at:
-- HTTP: `http://localhost:8080` (redirects to HTTPS)
-- HTTPS: `https://localhost` (self-signed certificate — accept the browser warning on first visit)
+- `http://localhost:8080`
+
+> **Note:** HTTPS is disabled by default because requests from Open Zaak do not reach the NC when HTTPS is enabled. To enable HTTPS, set `application.security.http.transportGuarantee=confidential` in `DeploymentSpecifics.properties`.
 
 ### Docker Deployment
 
@@ -52,7 +53,7 @@ docker-compose up
 
 This will start:
 - **Frank Application**: Available at `http://localhost:8080`
-- **Frank Flow (UI)**: Available at `http://localhost:8090`
+- **Frank Flow (UI)**: Available at `http://localhost:8080/frank-flow`
 - **PostgreSQL Database**: Exposed on host port `5433` (internal: 5432)
 
 ## Configuration Files

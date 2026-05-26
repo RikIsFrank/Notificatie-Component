@@ -23,7 +23,7 @@ Larva is the Frank!Framework's built-in test tool. Tests live in `src/test/testt
 **Running tests**
 
 1. Start the application with Frank!Runner (`.\restart.bat` / `./restart.sh`)
-2. Open the Frank!Console at `https://localhost` (accept the self-signed certificate warning)
+2. Open the Frank!Console at `http://localhost:8080`
 3. Navigate to **Testing → Larva**
 4. Select the scenario folder and click **Run**
 
