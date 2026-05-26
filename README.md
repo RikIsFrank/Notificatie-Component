@@ -39,8 +39,9 @@ From the project root in the terminal run:
 ```
 
 The application will be available at:
-- HTTP: `http://localhost:8080` (redirects to HTTPS)
-- HTTPS: `https://localhost` (self-signed certificate — accept the browser warning on first visit)
+- `http://localhost:8080`
+
+> **Note:** HTTPS is disabled by default because requests from Open Zaak do not reach the NC when HTTPS is enabled. To enable HTTPS, set `application.security.http.transportGuarantee=confidential` in `DeploymentSpecifics.properties`.
 
 ### Docker Deployment
 
