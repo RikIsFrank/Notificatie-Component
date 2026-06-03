@@ -35,6 +35,8 @@ vng_api_common_credentials:
       secret: admin
     - identifier: notificatie-component
       secret: super-secret
+    - identifier: open-klant
+      secret: open-klant-secret
 
 vng_api_common_applicaties_config_enable: true
 vng_api_common_applicaties:
@@ -49,4 +51,9 @@ vng_api_common_applicaties:
       client_ids:
         - notificatie-component
       label: Notificatie Component
+      heeft_alle_autorisaties: true
+    - uuid: 5e36b3c0-0002-0000-0000-000000000001
+      client_ids:
+        - open-klant
+      label: Open Klant
       heeft_alle_autorisaties: true

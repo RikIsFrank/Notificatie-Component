@@ -207,13 +207,17 @@
     </changeSet>
 
     <!-- Demo data -->
-    <!-- 1. JWT secret (secret for Open Zaak matches docker/open-zaak/setup_configuration/data.yaml) -->
-    <changeSet id="demo-1-insert-jwt-secrets" author="Rik">
+    <!-- 0. JWT secret (secret for Bruno / custom testing) -->
+    <changeSet id="demo-0-insert-jwt-secrets" author="Rik">
         <insert tableName="jwt_secret">
             <column name="client_id" value="admin"/>
             <column name="secret"    value="admin"/>
             <column name="label"     value="Admin"/>
         </insert>
+    </changeSet>
+
+    <!-- 1. JWT secret (secret for Open Zaak matches docker/open-zaak/setup_configuration/data.yaml) -->
+    <changeSet id="demo-1-insert-jwt-secrets" author="Rik">
         <insert tableName="jwt_secret">
             <column name="client_id" value="open-zaak"/>
             <column name="secret"    value="G2LIVfXal1J93puQkV3O"/>
@@ -257,6 +261,29 @@
             <column name="uuid"    value="5e36b3c0-0001-0000-0000-000000000007"/>
             <column name="naam"    value="zaken"/>
             <column name="filters" value='["verantwoordelijkeOrganisatie","zaaktype","bronorganisatie"]'/>
+        </insert>
+    </changeSet>
+
+    <!-- 3. JWT secret (secret for Open Klant matches docker/open-klant/setup_configuration/data.yaml) -->
+    <changeSet id="demo-3-insert-jwt-secret-open-klant" author="Rik">
+        <insert tableName="jwt_secret">
+            <column name="client_id" value="open-klant"/>
+            <column name="secret"    value="open-klant-secret"/>
+            <column name="label"     value="Open Klant"/>
+        </insert>
+    </changeSet>
+
+    <!-- 4. Open Klant notification channels -->
+    <changeSet id="demo-4-insert-kanalen-open-klant" author="Rik">
+        <insert tableName="kanaal">
+            <column name="uuid"    value="5e36b3c0-0002-0000-0000-000000000010"/>
+            <column name="naam"    value="internetaken"/>
+            <column name="filters" value='["nummer","gevraagdeHandeling","toelichting","status"]'/>
+        </insert>
+        <insert tableName="kanaal">
+            <column name="uuid"    value="5e36b3c0-0002-0000-0000-000000000011"/>
+            <column name="naam"    value="partijen"/>
+            <column name="filters" value='["nummer","interneNotitie","soortPartij"]'/>
         </insert>
     </changeSet>
 </databaseChangeLog>

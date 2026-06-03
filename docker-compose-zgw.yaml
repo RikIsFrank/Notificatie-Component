@@ -6,7 +6,9 @@ services:
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - ./docker/open-zaak/postgres.entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+      - ./docker/open-zaak/postgres.entrypoint-initdb.d/0001-openzaak.sql:/docker-entrypoint-initdb.d/0001-openzaak.sql:ro
+      - ./docker/open-zaak/postgres.entrypoint-initdb.d/0002-openzaak-extensions.sh:/docker-entrypoint-initdb.d/0002-openzaak-extensions.sh:ro
+      - ./docker/open-klant/postgres.entrypoint-initdb.d/0001-openklant.sql:/docker-entrypoint-initdb.d/0003-openklant.sql:ro
       - db:/var/lib/postgresql/data
     command: postgres -c max_connections=300 -c log_min_messages=LOG
     networks:
@@ -95,6 +97,71 @@ services:
       start_period: 10s
     depends_on:
       openzaak:
+        condition: service_healthy
+    networks:
+      - open-zaak-dev
+
+  openklant:
+    image: maykinmedia/open-klant:latest
+    environment: &openklant-env
+      DJANGO_SETTINGS_MODULE: openklant.conf.docker
+      SECRET_KEY: ${OPENKLANT_SECRET_KEY:-django-insecure-openklant-dev-key}
+      DB_NAME: openklant
+      DB_USER: openklant
+      DB_HOST: db
+      IS_HTTPS: "no"
+      ALLOWED_HOSTS: localhost,127.0.0.1,openklant,host.docker.internal
+      CORS_ALLOW_ALL_ORIGINS: "True"
+      CSRF_TRUSTED_ORIGINS: http://localhost:8002
+      CACHE_DEFAULT: redis:6379/2
+      CACHE_AXES: redis:6379/2
+      CELERY_BROKER_URL: redis://redis:6379/3
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
+      CELERY_WORKER_NAME: celery@openklant
+      SITE_DOMAIN: localhost
+      NOTIFICATIONS_DISABLED: "false"
+      LOG_NOTIFICATIONS_IN_DB: "yes"
+      DISABLE_2FA: "true"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      OTEL_SDK_DISABLED: "true"
+      DJANGO_SUPERUSER_USERNAME: admin
+      DJANGO_SUPERUSER_EMAIL: admin@admin.admin
+      DJANGO_SUPERUSER_PASSWORD: admin
+    healthcheck:
+      test: ["CMD", "maykin-common", "health-check"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      openklant-init:
+        condition: service_completed_successfully
+    ports:
+      - 8002:8000
+    networks:
+      - open-zaak-dev
+
+  openklant-init:
+    image: maykinmedia/open-klant:latest
+    command: sh -c "/upgrade_check_version.sh && /setup_configuration.sh && (src/manage.py createsuperuser --noinput || true) && src/manage.py loaddata /app/fixtures/demo.json"
+    environment:
+      <<: *openklant-env
+      RUN_SETUP_CONFIG: "true"
+    volumes:
+      - ./docker/open-klant/setup_configuration:/app/setup_configuration
+      - ./docker/open-klant/fixtures/demo.json:/app/fixtures/demo.json:ro
+    depends_on:
+      - db
+      - redis
+    networks:
+      - open-zaak-dev
+
+  openklant_celery:
+    image: maykinmedia/open-klant:latest
+    environment: *openklant-env
+    command: /celery_worker.sh
+    depends_on:
+      openklant:
         condition: service_healthy
     networks:
       - open-zaak-dev
